@@ -16,7 +16,27 @@ function create_champion(_name, _role, _mech_scale, _team_scale, _know_scale, _e
     };
 }
 
-// Create a player struct
+// Create a pro player struct (without champion assigned yet)
+function create_pro_player(_name, _role, _mechanics, _teamwork, _knowledge) {
+    return {
+        name: _name,
+        role: _role,
+        mechanics: _mechanics,      // 1-100
+        teamwork: _teamwork,        // 1-100
+        knowledge: _knowledge,      // 1-100
+        champion: noone,            // Assigned during champion draft
+        kills: 0,
+        deaths: 0,
+        assists: 0
+    };
+}
+
+// Assign champion to player (used after champion draft)
+function assign_champion_to_player(_player, _champion) {
+    _player.champion = _champion;
+}
+
+// Create a player struct (legacy - for when we already have champion)
 function create_player(_name, _role, _mechanics, _teamwork, _knowledge, _champion) {
     return {
         name: _name,
@@ -41,8 +61,368 @@ function create_team(_name, _players) {
         dragons: 0,
         barons: 0,
         towers: 0,
-        phase_results: [] // Track which phases were won
+        phase_results: [], // Track which phases were won
+        nexus_hp: 100 // Nexus health
     };
+}
+
+// ===================================
+// GOLD GENERATION
+// ===================================
+
+function generate_tick_gold(_team1, _team2, _phase, _tick_winner) {
+    
+    var loser = (_tick_winner == _team1) ? _team2 : _team1;
+    
+    // Base gold per tick
+    var base_gold = 0;
+    switch(_phase) {
+        case "early": base_gold = 2000; break;  // 2k gold per ~2.5 min
+        case "mid": base_gold = 3000; break;    // 3k gold per tick
+        case "late": base_gold = 4000; break;   // 4k gold per tick
+    }
+    
+    // Winner gets more gold
+    var winner_gold = base_gold * random_range(1.1, 1.3);
+    var loser_gold = base_gold * random_range(0.8, 1.0);
+    
+    _tick_winner.gold += winner_gold;
+    loser.gold += loser_gold;
+}
+
+// ===================================
+// OBJECTIVES GENERATION (PER TICK)
+// ===================================
+
+function generate_tick_objectives(_team1, _team2, _phase, _tick_winner) {
+    
+    var loser = (_tick_winner == _team1) ? _team2 : _team1;
+    
+    switch(_phase) {
+        case "early":
+            // 40% chance for a dragon
+            if (random(1) < 0.4) {
+                _tick_winner.dragons += 1;
+            }
+            
+            // Towers (1-2 for winner, 0-1 for loser)
+            _tick_winner.towers += irandom_range(1, 2);
+            if (random(1) < 0.3) {
+                loser.towers += 1;
+            }
+            break;
+            
+        case "mid":
+            // 50% chance for dragon
+            if (random(1) < 0.5) {
+                _tick_winner.dragons += 1;
+            }
+            if (random(1) < 0.3) {
+                loser.dragons += 1;
+            }
+            
+            // 20% chance for baron
+            if (random(1) < 0.2) {
+                _tick_winner.barons += 1;
+            }
+            
+            // Towers
+            _tick_winner.towers += irandom_range(1, 3);
+            loser.towers += irandom_range(0, 1);
+            break;
+            
+        case "late":
+            // Dragons
+            if (random(1) < 0.4) {
+                _tick_winner.dragons += 1;
+            }
+            
+            // Baron is crucial (50% chance for winner)
+            if (random(1) < 0.5) {
+                _tick_winner.barons += 1;
+            }
+            if (random(1) < 0.15) {
+                loser.barons += 1;
+            }
+            
+            // Towers
+            _tick_winner.towers += irandom_range(2, 4);
+            loser.towers += irandom_range(0, 2);
+            break;
+    }
+}
+
+// ===================================
+// NEXUS DAMAGE CALCULATION
+// ===================================
+
+function calculate_nexus_damage(_team1, _team2, _phase, _phase_winner, _score_ratio) {
+    
+    var loser = (_phase_winner == _team1) ? _team2 : _team1;
+    
+    // Base damage for winning a tick
+    var base_damage = 0;
+    switch(_phase) {
+        case "early": base_damage = 15; break;  // Early ticks do moderate damage
+        case "mid": base_damage = 20; break;    // Mid game ramps up
+        case "late": base_damage = 25; break;   // Late game is decisive
+    }
+    
+    // Modify damage based on how hard they won (score ratio)
+    // Close game (1.0-1.2 ratio) = 0.8x damage
+    // Normal win (1.2-1.5 ratio) = 1.0x damage  
+    // Dominant (1.5+ ratio) = 1.3x damage
+    var dominance_multiplier = 1.0;
+    if (_score_ratio < 1.2) {
+        dominance_multiplier = 0.8;
+    } else if (_score_ratio > 1.5) {
+        dominance_multiplier = 1.3;
+    }
+    
+    // Calculate gold advantage multiplier
+    var gold_multiplier = 1.0;
+    var gold_diff = abs(_phase_winner.gold - loser.gold);
+    if (gold_diff > 5000) {
+        gold_multiplier = 1.2;
+    } else if (gold_diff > 10000) {
+        gold_multiplier = 1.4;
+    }
+    
+    // Objective bonuses
+    var objective_bonus = 0;
+    objective_bonus += (_phase_winner.dragons - loser.dragons) * 2;  // Each dragon = 2 damage
+    objective_bonus += (_phase_winner.barons - loser.barons) * 8;    // Each baron = 8 damage
+    objective_bonus += (_phase_winner.towers - loser.towers) * 1.5;  // Each tower = 1.5 damage
+    
+    // Calculate total damage
+    var total_damage = (base_damage * dominance_multiplier * gold_multiplier) + objective_bonus;
+    
+    // Add some randomness (±10%)
+    total_damage *= random_range(0.9, 1.1);
+    
+    // Comeback mechanic: If team is very behind, reduce damage taken slightly
+    if (loser.nexus_hp < 25 && _phase_winner.nexus_hp > 75) {
+        total_damage *= 0.9;  // 10% damage reduction for underdog (reduced from 15%)
+        show_debug_message("Comeback mechanic activated! Damage reduced.");
+    }
+    
+    // Deal damage
+    loser.nexus_hp -= total_damage;
+    loser.nexus_hp = max(0, loser.nexus_hp);  // Can't go below 0
+    
+    show_debug_message("Nexus damage: " + string(total_damage) + " | " + 
+        _team1.name + ": " + string(_team1.nexus_hp) + " HP | " + 
+        _team2.name + ": " + string(_team2.nexus_hp) + " HP");
+}
+
+// ===================================
+// REAL-TIME MATCH SYSTEM
+// ===================================
+
+function create_match_state(_team1, _team2) {
+    return {
+        team1: _team1,
+        team2: _team2,
+        active: true,
+        paused: false,
+        game_time: 0,
+        real_time_counter: 0,
+        speed: 1.0,
+        events: [],
+        last_tick_time: 0,
+        tick_interval: 2.5,
+        winner: noone
+    };
+}
+
+function add_match_event(_match_state, _message) {
+    var event = {
+        time: _match_state.game_time,
+        message: _message
+    };
+    array_push(_match_state.events, event);
+}
+
+function get_match_phase(_match_state) {
+    var avg_gold = (_match_state.team1.gold + _match_state.team2.gold) / 2;
+    
+    if (avg_gold < 5000) {
+        return "Early Game";
+    } else if (avg_gold < 15000) {
+        return "Mid Game";
+    } else {
+        return "Late Game";
+    }
+}
+
+function get_team_kills(_team) {
+    var total = 0;
+    for (var i = 0; i < array_length(_team.players); i++) {
+        total += _team.players[i].kills;
+    }
+    return total;
+}
+
+function process_match_tick(_match_state) {
+    
+    var avg_gold = (_match_state.team1.gold + _match_state.team2.gold) / 2;
+    var phase = "";
+    
+    if (avg_gold < 5000) {
+        phase = "early";
+    } else if (avg_gold < 15000) {
+        phase = "mid";
+    } else {
+        phase = "late";
+    }
+    
+    var t1_score = 0;
+    var t2_score = 0;
+    
+    switch(phase) {
+        case "early":
+            t1_score = calculate_early_score(_match_state.team1);
+            t2_score = calculate_early_score(_match_state.team2);
+            break;
+        case "mid":
+            t1_score = calculate_mid_score(_match_state.team1);
+            t2_score = calculate_mid_score(_match_state.team2);
+            break;
+        case "late":
+            t1_score = calculate_late_score(_match_state.team1);
+            t2_score = calculate_late_score(_match_state.team2);
+            break;
+    }
+    
+    t1_score *= random_range(0.85, 1.15);
+    t2_score *= random_range(0.85, 1.15);
+    
+    var tick_winner = (t1_score > t2_score) ? _match_state.team1 : _match_state.team2;
+    var tick_loser = (t1_score > t2_score) ? _match_state.team2 : _match_state.team1;
+    var score_ratio = max(t1_score, t2_score) / min(t1_score, t2_score);
+    
+    tick_winner.phase_wins++;
+    
+    // Generate gold
+    var base_gold = 0;
+    switch(phase) {
+        case "early": base_gold = 2000; break;
+        case "mid": base_gold = 3000; break;
+        case "late": base_gold = 4000; break;
+    }
+    
+    var winner_gold = base_gold * random_range(1.1, 1.3);
+    var loser_gold = base_gold * random_range(0.8, 1.0);
+    
+    tick_winner.gold += winner_gold;
+    tick_loser.gold += loser_gold;
+    
+    // Generate objectives
+    process_tick_objectives(_match_state, tick_winner, tick_loser, phase);
+    
+    // Generate kills
+    var kills = irandom_range(2, 5);
+    for (var i = 0; i < kills; i++) {
+        var killer_index = irandom(4);
+        var victim_index = irandom(4);
+        
+        tick_winner.players[killer_index].kills++;
+        tick_loser.players[victim_index].deaths++;
+        
+        if (random(1) < 0.7) {
+            var assister = irandom(4);
+            if (assister != killer_index) {
+                tick_winner.players[assister].assists++;
+            }
+        }
+    }
+    
+    // Calculate nexus damage
+    var base_damage = 0;
+    switch(phase) {
+        case "early": base_damage = 15; break;
+        case "mid": base_damage = 20; break;
+        case "late": base_damage = 25; break;
+    }
+    
+    var dominance_mult = (score_ratio < 1.2) ? 0.8 : ((score_ratio > 1.5) ? 1.3 : 1.0);
+    var gold_diff = abs(tick_winner.gold - tick_loser.gold);
+    var gold_mult = (gold_diff > 10000) ? 1.4 : ((gold_diff > 5000) ? 1.2 : 1.0);
+    
+    var obj_bonus = 0;
+    obj_bonus += (tick_winner.dragons - tick_loser.dragons) * 2;
+    obj_bonus += (tick_winner.barons - tick_loser.barons) * 8;
+    obj_bonus += (tick_winner.towers - tick_loser.towers) * 1.5;
+    
+    var total_damage = (base_damage * dominance_mult * gold_mult) + obj_bonus;
+    total_damage *= random_range(0.9, 1.1);
+    
+    if (tick_loser.nexus_hp < 25 && tick_winner.nexus_hp > 75) {
+        total_damage *= 0.9;
+    }
+    
+    tick_loser.nexus_hp -= total_damage;
+    tick_loser.nexus_hp = max(0, tick_loser.nexus_hp);
+    
+    if (tick_loser.nexus_hp <= 0) {
+        _match_state.active = false;
+        _match_state.winner = tick_winner;
+        add_match_event(_match_state, tick_winner.name + " has destroyed the enemy Nexus! Victory!");
+    }
+}
+
+function process_tick_objectives(_match_state, _winner, _loser, _phase) {
+    
+    switch(_phase) {
+        case "early":
+            if (random(1) < 0.4) {
+                _winner.dragons += 1;
+                add_match_event(_match_state, _winner.name + " secured a Dragon!");
+            }
+            
+            var towers = irandom_range(1, 2);
+            _winner.towers += towers;
+            if (towers > 0) {
+                add_match_event(_match_state, _winner.name + " destroyed " + string(towers) + " tower(s)");
+            }
+            break;
+            
+        case "mid":
+            if (random(1) < 0.5) {
+                _winner.dragons += 1;
+                add_match_event(_match_state, _winner.name + " secured a Dragon!");
+            }
+            
+            if (random(1) < 0.2) {
+                _winner.barons += 1;
+                add_match_event(_match_state, _winner.name + " slayed Baron Nashor!");
+            }
+            
+            var towers = irandom_range(1, 3);
+            _winner.towers += towers;
+            if (towers > 0) {
+                add_match_event(_match_state, _winner.name + " destroyed " + string(towers) + " tower(s)");
+            }
+            break;
+            
+        case "late":
+            if (random(1) < 0.4) {
+                _winner.dragons += 1;
+                add_match_event(_match_state, _winner.name + " secured a Dragon!");
+            }
+            
+            if (random(1) < 0.5) {
+                _winner.barons += 1;
+                add_match_event(_match_state, _winner.name + " slayed Baron Nashor!");
+            }
+            
+            var towers = irandom_range(2, 4);
+            _winner.towers += towers;
+            if (towers > 0) {
+                add_match_event(_match_state, _winner.name + " destroyed " + string(towers) + " tower(s)");
+            }
+            break;
+    }
 }
 
 // ===================================
@@ -67,6 +447,8 @@ function simulate_match(_team1, _team2) {
     _team2.towers = 0;
     _team1.phase_results = [];
     _team2.phase_results = [];
+    _team1.nexus_hp = 100;
+    _team2.nexus_hp = 100;
     
     // Reset player stats
     for (var i = 0; i < array_length(_team1.players); i++) {
@@ -80,27 +462,55 @@ function simulate_match(_team1, _team2) {
         _team2.players[i].assists = 0;
     }
     
-    // Simulate three phases
-    simulate_phase(_team1, _team2, "early");
-    simulate_phase(_team1, _team2, "mid");
-    simulate_phase(_team1, _team2, "late");
+    // Track game time and total gold
+    var game_minutes = 0;
+    var tick_count = 0;
     
-    // Calculate match duration based on how dominant the winner was
-    var phase_diff = abs(_team1.phase_wins - _team2.phase_wins);
-    var base_time = 0;
-    if (phase_diff == 3) base_time = irandom_range(20, 25); // Stomp
-    else if (phase_diff == 1) base_time = irandom_range(25, 35); // Close game
-    else base_time = irandom_range(35, 45); // Very close
+    // Simulate game in "ticks" until a nexus is destroyed
+    while (_team1.nexus_hp > 0 && _team2.nexus_hp > 0 && game_minutes < 60) {
+        
+        // Determine current phase based on average team gold
+        var avg_gold = (_team1.gold + _team2.gold) / 2;
+        var current_phase = "";
+        
+        if (avg_gold < 5000) {
+            current_phase = "early";
+        } else if (avg_gold < 15000) {
+            current_phase = "mid";
+        } else {
+            current_phase = "late";
+        }
+        
+        // Simulate this tick (represents ~2-3 minutes of game time)
+        simulate_game_tick(_team1, _team2, current_phase);
+        
+        tick_count++;
+        game_minutes = tick_count * 2.5; // Each tick = 2.5 minutes
+        
+        // Safety: Stop after 60 minutes
+        if (game_minutes >= 60) {
+            show_debug_message("Game reached 60 minutes! Forcing end.");
+            break;
+        }
+    }
     
-    global.match_duration = base_time;
+    global.match_duration = round(game_minutes);
     
-    // Determine winner
-    var winner = (_team1.phase_wins > _team2.phase_wins) ? _team1 : _team2;
+    // Determine winner - team with nexus still standing
+    var winner;
+    if (_team1.nexus_hp <= 0) {
+        winner = _team2;
+    } else if (_team2.nexus_hp <= 0) {
+        winner = _team1;
+    } else {
+        // If both nexuses survive (time limit reached)
+        winner = (_team1.nexus_hp > _team2.nexus_hp) ? _team1 : _team2;
+    }
     
     return winner;
 }
 
-function simulate_phase(_team1, _team2, _phase) {
+function simulate_game_tick(_team1, _team2, _phase) {
     
     var t1_match_score = 0;
     var t2_match_score = 0;
@@ -125,26 +535,33 @@ function simulate_phase(_team1, _team2, _phase) {
     t1_match_score *= random_range(0.85, 1.15);
     t2_match_score *= random_range(0.85, 1.15);
     
-    // Determine phase winner
-    var phase_winner;
+    // Determine tick winner
+    var tick_winner;
+    var score_diff = abs(t1_match_score - t2_match_score);
+    var score_ratio = max(t1_match_score, t2_match_score) / min(t1_match_score, t2_match_score);
+    
     if (t1_match_score > t2_match_score) {
         _team1.phase_wins++;
-        phase_winner = _team1;
+        tick_winner = _team1;
         array_push(_team1.phase_results, _phase + " WIN");
         array_push(_team2.phase_results, _phase + " LOSS");
-        show_debug_message("Team " + _team1.name + " wins " + _phase + " game! (" + string(t1_match_score) + " vs " + string(t2_match_score) + ")");
     } else {
         _team2.phase_wins++;
-        phase_winner = _team2;
+        tick_winner = _team2;
         array_push(_team1.phase_results, _phase + " LOSS");
         array_push(_team2.phase_results, _phase + " WIN");
-        show_debug_message("Team " + _team2.name + " wins " + _phase + " game! (" + string(t1_match_score) + " vs " + string(t2_match_score) + ")");
     }
     
-    // Generate objectives for this phase
-    generate_phase_objectives(_team1, _team2, _phase, phase_winner);
+    // Generate gold for this tick
+    generate_tick_gold(_team1, _team2, _phase, tick_winner);
     
-    // Generate player stats for this phase
+    // Generate objectives for this tick
+    generate_tick_objectives(_team1, _team2, _phase, tick_winner);
+    
+    // Calculate nexus damage
+    calculate_nexus_damage(_team1, _team2, _phase, tick_winner, score_ratio);
+    
+    // Generate player stats for this tick
     generate_phase_stats(_team1, _team2, _phase, t1_match_score > t2_match_score);
 }
 
@@ -153,48 +570,334 @@ function simulate_phase(_team1, _team2, _phase) {
 // ===================================
 
 function init_champion_pool() {
-    global.champion_pool = {
+    global.champion_pool = { 
+	    top: [
+	        // Shen - Tank/Teamwork focused, global ultimate
+	        create_champion("Shen", "Top", 0.9, 1.3, 1.1, 0.9, 1.1, 1.0),
+	        // Aatrox - Mechanics heavy, early game bully
+	        create_champion("Aatrox", "Top", 1.3, 0.9, 0.9, 1.2, 1.0, 0.9),
+	        // Rumble - Knowledge/positioning, teamfight monster
+	        create_champion("Rumble", "Top", 1.0, 1.0, 1.2, 1.0, 1.2, 1.1),
+	        // Duelist, high mechanics scaling
+	        create_champion("Fiora", "Top", 1.5, 0.8, 1.0, 1.2, 1.1, 1.3),
+			// Simple mechanics, teamwork engage
+	        create_champion("Malphite", "Top", 0.8, 1.2, 1.0, 1.0, 1.1, 1.0), 
+			 // Weak early, insane late scaling
+	        create_champion("Kayle", "Top", 1.0, 0.9, 1.2, 0.7, 0.9, 1.4) 
+	    ],
+	    jungle: [
+	        // Lee Sin - High mechanics, early game aggro
+	        create_champion("Lee Sin", "Jungle", 1.4, 0.8, 1.0, 1.3, 1.0, 0.8),
+	        // Shyvana - Farming jungler, scales into late
+	        create_champion("Shyvana", "Jungle", 0.9, 0.9, 1.0, 0.8, 1.0, 1.3),
+	        // Kindred - Mechanics + knowledge, scaling marksman
+	        create_champion("Kindred", "Jungle", 1.2, 0.9, 1.2, 0.9, 1.1, 1.2),
+	        // Early gank pressure, mechanics heavy
+	        create_champion("Elise", "Jungle", 1.3, 0.9, 1.1, 1.3, 1.1, 0.8),
+			 // Teamfight tank, CC synergy
+	        create_champion("Sejuani", "Jungle", 0.9, 1.3, 1.0, 0.9, 1.1, 1.1),
+			// Isolated duelist, mechanics focused
+	        create_champion("Kha'Zix", "Jungle", 1.4, 0.8, 1.1, 1.2, 1.2, 1.0) 
+	    ],
+	    mid: [
+	        // Yasuo - Extremely mechanics heavy, high risk/reward
+	        create_champion("Yasuo", "Mid", 1.5, 0.8, 0.8, 1.0, 1.1, 1.2),
+	        // Galio - Teamwork focused, roaming, engage
+	        create_champion("Galio", "Mid", 0.8, 1.4, 1.1, 0.9, 1.2, 1.0),
+	        // Anivia - Knowledge/positioning, control mage
+	        create_champion("Anivia", "Mid", 0.9, 1.0, 1.4, 0.8, 1.0, 1.3),
+	        // Assassin, mechanics intensive
+	        create_champion("Zed", "Mid", 1.5, 0.8, 1.0, 1.2, 1.2, 0.9),
+			// Knowledge/positioning mage
+	        create_champion("Orianna", "Mid", 1.0, 1.2, 1.3, 0.9, 1.2, 1.2),
+			// Adaptive scaling, mechanics heavy
+	        create_champion("Sylas", "Mid", 1.3, 1.0, 1.2, 1.0, 1.2, 1.1)
+	    ],
+	    adc: [
+	        // Vayne - Mechanics heavy, late game hyper carry
+	        create_champion("Vayne", "ADC", 1.4, 0.8, 0.9, 0.7, 0.9, 1.4),
+	        // Ashe - Utility/teamwork, consistent throughout
+	        create_champion("Ashe", "ADC", 0.9, 1.2, 1.1, 1.0, 1.1, 1.1),
+	        // Jhin - Mechanics + knowledge, positioning crucial
+	        create_champion("Jhin", "ADC", 1.3, 0.9, 1.2, 1.1, 1.2, 1.0),
+	        // Snowball early, mechanics heavy
+	        create_champion("Draven", "ADC", 1.5, 0.8, 1.0, 1.3, 1.1, 0.9),
+			// Flexible scaling, hybrid damage
+	        create_champion("Kai'Sa", "ADC", 1.3, 1.0, 1.1, 0.9, 1.1, 1.3),
+			// Lane bully, knowledge positioning
+	        create_champion("Caitlyn", "ADC", 1.1, 1.0, 1.2, 1.2, 1.1, 1.0)
+	    ],
+	    support: [
+	        // Janna - Teamwork/peel, protective enchanter
+	        create_champion("Janna", "Support", 0.8, 1.4, 1.0, 0.9, 1.0, 1.1),
+	        // Bard - Knowledge heavy, roaming support
+	        create_champion("Bard", "Support", 1.0, 1.1, 1.4, 1.1, 1.2, 1.0),
+	        // Thresh - Mechanics + teamwork, playmaking
+	        create_champion("Thresh", "Support", 1.3, 1.2, 0.9, 1.1, 1.1, 0.9),
+	        // Engage tank support
+	        create_champion("Leona", "Support", 1.0, 1.3, 1.0, 1.2, 1.2, 1.0),
+			// Knowledge + teamwork enchanter
+	        create_champion("Nami", "Support", 0.9, 1.3, 1.2, 1.0, 1.1, 1.2),
+			// Assassin support, mechanics reliant
+	        create_champion("Pyke", "Support", 1.4, 1.0, 1.0, 1.2, 1.1, 1.0)
+	    ]
+	};
+}
+
+// ===================================
+// PLAYER POOL
+// ===================================
+
+function init_player_pool() {
+    global.player_pool = {
         top: [
-            // Shen - Tank/Teamwork focused, global ultimate
-            create_champion("Shen", "Top", 0.9, 1.3, 1.1, 0.9, 1.1, 1.0),
-            // Aatrox - Mechanics heavy, early game bully
-            create_champion("Aatrox", "Top", 1.3, 0.9, 0.9, 1.2, 1.0, 0.9),
-            // Rumble - Knowledge/positioning, teamfight monster
-            create_champion("Rumble", "Top", 1.0, 1.0, 1.2, 1.0, 1.2, 1.1)
+            create_pro_player("Zeus", "Top", 92, 85, 88),
+            create_pro_player("Kingen", "Top", 85, 88, 82),
+            create_pro_player("TheShy", "Top", 95, 70, 75),
+            create_pro_player("Bin", "Top", 88, 80, 83)
         ],
         jungle: [
-            // Lee Sin - High mechanics, early game aggro
-            create_champion("Lee Sin", "Jungle", 1.4, 0.8, 1.0, 1.3, 1.0, 0.8),
-            // Shyvana - Farming jungler, scales into late
-            create_champion("Shyvana", "Jungle", 0.9, 0.9, 1.0, 0.8, 1.0, 1.3),
-            // Kindred - Mechanics + knowledge, scaling marksman
-            create_champion("Kindred", "Jungle", 1.2, 0.9, 1.2, 0.9, 1.1, 1.2)
+            create_pro_player("Canyon", "Jungle", 90, 92, 94),
+            create_pro_player("Oner", "Jungle", 88, 90, 87),
+            create_pro_player("Peanut", "Jungle", 85, 82, 90),
+            create_pro_player("Jiejie", "Jungle", 82, 88, 85)
         ],
         mid: [
-            // Yasuo - Extremely mechanics heavy, high risk/reward
-            create_champion("Yasuo", "Mid", 1.5, 0.8, 0.8, 1.0, 1.1, 1.2),
-            // Galio - Teamwork focused, roaming, engage
-            create_champion("Galio", "Mid", 0.8, 1.4, 1.1, 0.9, 1.2, 1.0),
-            // Anivia - Knowledge/positioning, control mage
-            create_champion("Anivia", "Mid", 0.9, 1.0, 1.4, 0.8, 1.0, 1.3)
+            create_pro_player("Faker", "Mid", 85, 90, 98),
+            create_pro_player("Chovy", "Mid", 95, 82, 92),
+            create_pro_player("Showmaker", "Mid", 92, 88, 90),
+            create_pro_player("Knight", "Mid", 90, 85, 88)
         ],
         adc: [
-            // Vayne - Mechanics heavy, late game hyper carry
-            create_champion("Vayne", "ADC", 1.4, 0.8, 0.9, 0.7, 0.9, 1.4),
-            // Ashe - Utility/teamwork, consistent throughout
-            create_champion("Ashe", "ADC", 0.9, 1.2, 1.1, 1.0, 1.1, 1.1),
-            // Jhin - Mechanics + knowledge, positioning crucial
-            create_champion("Jhin", "ADC", 1.3, 0.9, 1.2, 1.1, 1.2, 1.0)
+            create_pro_player("Gumayusi", "ADC", 93, 88, 85),
+            create_pro_player("Viper", "ADC", 90, 90, 88),
+            create_pro_player("Ruler", "ADC", 88, 92, 90),
+            create_pro_player("Elk", "ADC", 85, 85, 82)
         ],
         support: [
-            // Janna - Teamwork/peel, protective enchanter
-            create_champion("Janna", "Support", 0.8, 1.4, 1.0, 0.9, 1.0, 1.1),
-            // Bard - Knowledge heavy, roaming support
-            create_champion("Bard", "Support", 1.0, 1.1, 1.4, 1.1, 1.2, 1.0),
-            // Thresh - Mechanics + teamwork, playmaking
-            create_champion("Thresh", "Support", 1.3, 1.2, 0.9, 1.1, 1.1, 0.9)
+            create_pro_player("Keria", "Support", 85, 95, 92),
+            create_pro_player("Meiko", "Support", 80, 92, 88),
+            create_pro_player("Lehends", "Support", 88, 88, 85),
+            create_pro_player("Missing", "Support", 82, 90, 80)
         ]
     };
+}
+
+// ===================================
+// PLAYER DRAFT SYSTEM
+// ===================================
+
+function create_player_draft_state() {
+    return {
+        active: true,
+        current_pick: 0,
+        team1_picks: [],
+        team2_picks: [],
+        picked_players: [],
+        current_role_index: 0,
+        pick_order: [1, 2, 2, 1, 1, 2, 2, 1, 1, 2]
+    };
+}
+
+function get_current_team_player_draft(draft) {
+    return draft.pick_order[draft.current_pick];
+}
+
+function get_current_role_player_draft(draft) {
+    var roles = ["Top", "Jungle", "Mid", "ADC", "Support"];
+    return roles[draft.current_role_index];
+}
+
+function get_available_players(draft) {
+    var role = get_current_role_player_draft(draft);
+    var role_key = "";
+    
+    switch(role) {
+        case "Top": role_key = "top"; break;
+        case "Jungle": role_key = "jungle"; break;
+        case "Mid": role_key = "mid"; break;
+        case "ADC": role_key = "adc"; break;
+        case "Support": role_key = "support"; break;
+    }
+    
+    var all_players = global.player_pool[$ role_key];
+    var available = [];
+    
+    for (var i = 0; i < array_length(all_players); i++) {
+        var player = all_players[i];
+        var is_picked = false;
+        
+        for (var j = 0; j < array_length(draft.picked_players); j++) {
+            if (draft.picked_players[j].name == player.name) {
+                is_picked = true;
+                break;
+            }
+        }
+        
+        if (!is_picked) {
+            array_push(available, player);
+        }
+    }
+    
+    return available;
+}
+
+function make_player_pick(draft, player) {
+    var current_team = get_current_team_player_draft(draft);
+    
+    if (current_team == 1) {
+        array_push(draft.team1_picks, player);
+    } else {
+        array_push(draft.team2_picks, player);
+    }
+    
+    array_push(draft.picked_players, player);
+    draft.current_pick++;
+    
+    if (draft.current_pick % 2 == 0) {
+        draft.current_role_index++;
+    }
+    
+    if (draft.current_pick >= 10) {
+        draft.active = false;
+    }
+    
+    return draft.active;
+}
+
+function ai_pick_player(draft) {
+    var available = get_available_players(draft);
+    
+    if (array_length(available) > 0) {
+        var random_index = irandom(array_length(available) - 1);
+        return available[random_index];
+    }
+    
+    return noone;
+}
+
+// ===================================
+// CHAMPION DRAFT SYSTEM
+// ===================================
+
+// Draft state struct
+function create_draft_state() {
+    return {
+        active: true,
+        current_pick: 0,  // 0-9 for 10 picks total
+        team1_picks: [],  // Array of picked champions
+        team2_picks: [],
+        picked_champions: [], // Track all picked champions to prevent duplicates
+        current_role_index: 0, // 0=Top, 1=Jungle, 2=Mid, 3=ADC, 4=Support
+        // Draft order: Team1, Team2, Team2, Team1, Team1, Team2, Team2, Team1, Team1, Team2
+        pick_order: [1, 2, 2, 1, 1, 2, 2, 1, 1, 2]
+    };
+}
+
+// Get which team is currently picking
+function get_current_team(draft) {
+    return draft.pick_order[draft.current_pick];
+}
+
+// Get current role being picked
+function get_current_role(draft) {
+    var roles = ["Top", "Jungle", "Mid", "ADC", "Support"];
+    return roles[draft.current_role_index];
+}
+
+// Get available champions for current role
+function get_available_champions(draft) {
+    var role = get_current_role(draft);
+    var role_key = "";
+    
+    // Convert role to champion pool key
+    switch(role) {
+        case "Top": role_key = "top"; break;
+        case "Jungle": role_key = "jungle"; break;
+        case "Mid": role_key = "mid"; break;
+        case "ADC": role_key = "adc"; break;
+        case "Support": role_key = "support"; break;
+    }
+    
+    var all_champs = global.champion_pool[$ role_key];
+    var available = [];
+    
+    // Filter out already picked champions
+    for (var i = 0; i < array_length(all_champs); i++) {
+        var champ = all_champs[i];
+        var is_picked = false;
+        
+        for (var j = 0; j < array_length(draft.picked_champions); j++) {
+            if (draft.picked_champions[j].name == champ.name) {
+                is_picked = true;
+                break;
+            }
+        }
+        
+        if (!is_picked) {
+            array_push(available, champ);
+        }
+    }
+    
+    return available;
+}
+
+// Make a pick
+function make_pick(draft, champion) {
+    var current_team = get_current_team(draft);
+    
+    // Add to appropriate team
+    if (current_team == 1) {
+        array_push(draft.team1_picks, champion);
+    } else {
+        array_push(draft.team2_picks, champion);
+    }
+    
+    // Track picked champion
+    array_push(draft.picked_champions, champion);
+    
+    // Move to next pick
+    draft.current_pick++;
+    
+    // Check if we need to move to next role
+    // Roles change every 2 picks
+    if (draft.current_pick % 2 == 0) {
+        draft.current_role_index++;
+    }
+    
+    // Check if draft is complete
+    if (draft.current_pick >= 10) {
+        draft.active = false;
+    }
+    
+    return draft.active; // Return true if draft continues
+}
+
+// AI pick for computer team (picks randomly for now)
+function ai_pick_champion(draft) {
+    var available = get_available_champions(draft);
+    
+    if (array_length(available) > 0) {
+        var random_index = irandom(array_length(available) - 1);
+        return available[random_index];
+    }
+    
+    return noone;
+}
+
+// Create teams from drafts (both player and champion)
+function create_teams_from_drafts(player_draft, champion_draft) {
+    // Team 1 - Assign champions to drafted players
+    for (var i = 0; i < 5; i++) {
+        assign_champion_to_player(player_draft.team1_picks[i], champion_draft.team1_picks[i]);
+    }
+    global.team1 = create_team("Blue Team", player_draft.team1_picks);
+    
+    // Team 2
+    for (var i = 0; i < 5; i++) {
+        assign_champion_to_player(player_draft.team2_picks[i], champion_draft.team2_picks[i]);
+    }
+    global.team2 = create_team("Red Team", player_draft.team2_picks);
 }
 
 // ===================================
@@ -353,55 +1056,16 @@ function generate_phase_objectives(_team1, _team2, _phase, _phase_winner) {
 }
 
 // ===================================
-// PLAYER STATS GENERATION
+// PLAYER STATS GENERATION (Not used in real-time, kept for compatibility)
 // ===================================
 
 function generate_phase_stats(_team1, _team2, _phase, _team1_won) {
-    
-    var base_kills = 0;
-    
-    // Different phases have different kill counts
-    switch(_phase) {
-        case "early": base_kills = irandom_range(2, 5); break;
-        case "mid": base_kills = irandom_range(4, 8); break;
-        case "late": base_kills = irandom_range(3, 7); break;
-    }
-    
-    var winning_team = _team1_won ? _team1 : _team2;
-    var losing_team = _team1_won ? _team2 : _team1;
-    
-    // Winners get more kills
-    var winner_kills = base_kills + irandom_range(2, 5);
-    var loser_kills = base_kills - irandom_range(1, 3);
-    loser_kills = max(loser_kills, 1);
-    
-    // Distribute kills among players
-    distribute_kills(winning_team, winner_kills, losing_team);
-    distribute_kills(losing_team, loser_kills, winning_team);
+    // This function is no longer used in real-time matches
+    // Stats are generated in process_match_tick instead
 }
 
 function distribute_kills(_team, _total_kills, _enemy_team) {
-    
-    for (var i = 0; i < _total_kills; i++) {
-        // Random player gets a kill
-        var player_index = irandom(array_length(_team.players) - 1);
-        _team.players[player_index].kills++;
-        
-        // Random enemy player gets a death
-        var enemy_index = irandom(array_length(_enemy_team.players) - 1);
-        _enemy_team.players[enemy_index].deaths++;
-        
-        // 70% chance for assists (1-3 players)
-        if (random(1) < 0.7) {
-            var assist_count = irandom_range(1, 3);
-            for (var j = 0; j < assist_count; j++) {
-                var assist_index = irandom(array_length(_team.players) - 1);
-                if (assist_index != player_index) {
-                    _team.players[assist_index].assists++;
-                }
-            }
-        }
-    }
+    // This function is no longer used in real-time matches
 }
 
 // ===================================
@@ -450,138 +1114,4 @@ show_debug_message("\n" + team2.name + " Stats:");
 for (var i = 0; i < array_length(team2.players); i++) {
     var p = team2.players[i];
     show_debug_message(p.name + " (" + p.role + "): " + string(p.kills) + "/" + string(p.deaths) + "/" + string(p.assists));
-}
-
-
-
-// ===================================
-// DRAFT SYSTEM
-// ===================================
-
-// Draft state struct
-function create_draft_state() {
-    return {
-        active: true,
-        current_pick: 0,  // 0-9 for 10 picks total
-        team1_picks: [],  // Array of picked champions
-        team2_picks: [],
-        picked_champions: [], // Track all picked champions to prevent duplicates
-        current_role_index: 0, // 0=Top, 1=Jungle, 2=Mid, 3=ADC, 4=Support
-        // Draft order: Team1, Team2, Team2, Team1, Team1, Team2, Team2, Team1, Team1, Team2
-        pick_order: [1, 2, 2, 1, 1, 2, 2, 1, 1, 2]
-    };
-}
-
-// Get which team is currently picking
-function get_current_team(draft) {
-    return draft.pick_order[draft.current_pick];
-}
-
-// Get current role being picked
-function get_current_role(draft) {
-    var roles = ["Top", "Jungle", "Mid", "ADC", "Support"];
-    return roles[draft.current_role_index];
-}
-
-// Get available champions for current role
-function get_available_champions(draft) {
-    var role = get_current_role(draft);
-    var role_key = "";
-    
-    // Convert role to champion pool key
-    switch(role) {
-        case "Top": role_key = "top"; break;
-        case "Jungle": role_key = "jungle"; break;
-        case "Mid": role_key = "mid"; break;
-        case "ADC": role_key = "adc"; break;
-        case "Support": role_key = "support"; break;
-    }
-    
-    var all_champs = global.champion_pool[$ role_key];
-    var available = [];
-    
-    // Filter out already picked champions
-    for (var i = 0; i < array_length(all_champs); i++) {
-        var champ = all_champs[i];
-        var is_picked = false;
-        
-        for (var j = 0; j < array_length(draft.picked_champions); j++) {
-            if (draft.picked_champions[j].name == champ.name) {
-                is_picked = true;
-                break;
-            }
-        }
-        
-        if (!is_picked) {
-            array_push(available, champ);
-        }
-    }
-    
-    return available;
-}
-
-// Make a pick
-function make_pick(draft, champion) {
-    var current_team = get_current_team(draft);
-    
-    // Add to appropriate team
-    if (current_team == 1) {
-        array_push(draft.team1_picks, champion);
-    } else {
-        array_push(draft.team2_picks, champion);
-    }
-    
-    // Track picked champion
-    array_push(draft.picked_champions, champion);
-    
-    // Move to next pick
-    draft.current_pick++;
-    
-    // Check if we need to move to next role
-    // Roles change every 2 picks
-    if (draft.current_pick % 2 == 0) {
-        draft.current_role_index++;
-    }
-    
-    // Check if draft is complete
-    if (draft.current_pick >= 10) {
-        draft.active = false;
-    }
-    
-    return draft.active; // Return true if draft continues
-}
-
-// AI pick for computer team (picks randomly for now)
-function ai_pick_champion(draft) {
-    var available = get_available_champions(draft);
-    
-    if (array_length(available) > 0) {
-        var random_index = irandom(array_length(available) - 1);
-        return available[random_index];
-    }
-    
-    return noone;
-}
-
-// Create teams from draft picks
-function create_teams_from_draft(draft) {
-    // Team 1
-    var team1_players = [
-        create_player("PlayerA", "Top", 75, 70, 65, draft.team1_picks[0]),
-        create_player("PlayerB", "Jungle", 80, 75, 70, draft.team1_picks[1]),
-        create_player("PlayerC", "Mid", 85, 65, 75, draft.team1_picks[2]),
-        create_player("PlayerD", "ADC", 70, 80, 60, draft.team1_picks[3]),
-        create_player("PlayerE", "Support", 60, 85, 70, draft.team1_picks[4])
-    ];
-    global.team1 = create_team("Blue Team", team1_players);
-    
-    // Team 2
-    var team2_players = [
-        create_player("PlayerF", "Top", 70, 75, 70, draft.team2_picks[0]),
-        create_player("PlayerG", "Jungle", 75, 70, 75, draft.team2_picks[1]),
-        create_player("PlayerH", "Mid", 80, 70, 80, draft.team2_picks[2]),
-        create_player("PlayerI", "ADC", 75, 75, 65, draft.team2_picks[3]),
-        create_player("PlayerJ", "Support", 65, 80, 75, draft.team2_picks[4])
-    ];
-    global.team2 = create_team("Red Team", team2_players);
 }
