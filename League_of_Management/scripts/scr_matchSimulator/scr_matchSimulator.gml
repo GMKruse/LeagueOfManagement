@@ -583,7 +583,11 @@ function init_champion_pool() {
 			// Simple mechanics, teamwork engage
 	        create_champion("Malphite", "Top", 0.8, 1.2, 1.0, 1.0, 1.1, 1.0), 
 			 // Weak early, insane late scaling
-	        create_champion("Kayle", "Top", 1.0, 0.9, 1.2, 0.7, 0.9, 1.4) 
+	        create_champion("Kayle", "Top", 1.0, 0.9, 1.2, 0.7, 0.9, 1.4),
+			// Precision duelist with strong mid-game
+			create_champion("Camille", "Top", 1.4, 1.0, 1.1, 1.1, 1.2, 1.1),
+			// Late scaling tank with team utility
+			create_champion("Ornn", "Top", 0.9, 1.4, 1.0, 0.8, 1.1, 1.2)
 	    ],
 	    jungle: [
 	        // Lee Sin - High mechanics, early game aggro
@@ -597,7 +601,11 @@ function init_champion_pool() {
 			 // Teamfight tank, CC synergy
 	        create_champion("Sejuani", "Jungle", 0.9, 1.3, 1.0, 0.9, 1.1, 1.1),
 			// Isolated duelist, mechanics focused
-	        create_champion("Kha'Zix", "Jungle", 1.4, 0.8, 1.1, 1.2, 1.2, 1.0) 
+	        create_champion("Kha'Zix", "Jungle", 1.4, 0.8, 1.1, 1.2, 1.2, 1.0),
+			// Skillshot-based, mechanics high
+			create_champion("Nidalee", "Jungle", 1.5, 0.8, 1.1, 1.2, 1.1, 1.0),
+			// Teamfight CC and sustain tank
+			create_champion("Zac", "Jungle", 0.9, 1.4, 1.0, 0.9, 1.2, 1.2)
 	    ],
 	    mid: [
 	        // Yasuo - Extremely mechanics heavy, high risk/reward
@@ -611,7 +619,11 @@ function init_champion_pool() {
 			// Knowledge/positioning mage
 	        create_champion("Orianna", "Mid", 1.0, 1.2, 1.3, 0.9, 1.2, 1.2),
 			// Adaptive scaling, mechanics heavy
-	        create_champion("Sylas", "Mid", 1.3, 1.0, 1.2, 1.0, 1.2, 1.1)
+	        create_champion("Sylas", "Mid", 1.3, 1.0, 1.2, 1.0, 1.2, 1.1),
+			// Infinite scaling mage
+			create_champion("Veigar", "Mid", 0.9, 1.0, 1.3, 0.8, 1.0, 1.4),
+			// Burst assassin, high mechanics
+			create_champion("Akali", "Mid", 1.5, 0.8, 1.1, 1.1, 1.2, 1.2)
 	    ],
 	    adc: [
 	        // Vayne - Mechanics heavy, late game hyper carry
@@ -625,7 +637,11 @@ function init_champion_pool() {
 			// Flexible scaling, hybrid damage
 	        create_champion("Kai'Sa", "ADC", 1.3, 1.0, 1.1, 0.9, 1.1, 1.3),
 			// Lane bully, knowledge positioning
-	        create_champion("Caitlyn", "ADC", 1.1, 1.0, 1.2, 1.2, 1.1, 1.0)
+	        create_champion("Caitlyn", "ADC", 1.1, 1.0, 1.2, 1.2, 1.1, 1.0),
+			// Safe poke ADC, mechanics + knowledge
+			create_champion("Ezreal", "ADC", 1.4, 0.9, 1.2, 1.0, 1.2, 1.2),
+			// Combo-based, high mechanical ceiling
+			create_champion("Samira", "ADC", 1.5, 0.9, 1.0, 1.2, 1.2, 1.1)
 	    ],
 	    support: [
 	        // Janna - Teamwork/peel, protective enchanter
@@ -639,7 +655,11 @@ function init_champion_pool() {
 			// Knowledge + teamwork enchanter
 	        create_champion("Nami", "Support", 0.9, 1.3, 1.2, 1.0, 1.1, 1.2),
 			// Assassin support, mechanics reliant
-	        create_champion("Pyke", "Support", 1.4, 1.0, 1.0, 1.2, 1.1, 1.0)
+	        create_champion("Pyke", "Support", 1.4, 1.0, 1.0, 1.2, 1.1, 1.0),
+			// Buff/utility enchanter
+			create_champion("Lulu", "Support", 0.9, 1.4, 1.2, 1.0, 1.1, 1.2),
+			// Engage/disengage hybrid
+			create_champion("Rakan", "Support", 1.2, 1.3, 1.1, 1.1, 1.2, 1.1)
 	    ]
 	};
 }
@@ -681,6 +701,92 @@ function init_player_pool() {
             create_pro_player("Missing", "Support", 82, 90, 80)
         ]
     };
+}
+
+// ===================================
+// CHAMPION BAN SYSTEM
+// ===================================
+
+function create_ban_state() {
+    return {
+        active: true,
+        current_ban: 0,
+        team1_bans: [],
+        team2_bans: [],
+        all_bans: [],
+        // Ban order: Team1, Team2, Team2, Team1, Team1, Team2
+        ban_order: [1, 2, 2, 1, 1, 2]
+    };
+}
+
+function get_current_team_banning(ban_state) {
+    return ban_state.ban_order[ban_state.current_ban];
+}
+
+function get_available_champions_for_ban(ban_state) {
+    var all_champions = [];
+    
+    // Collect all champions from all roles
+    var role_names = ["top", "jungle", "mid", "adc", "support"];
+    for (var r = 0; r < array_length(role_names); r++) {
+        var role = role_names[r];
+        var champs_in_role = global.champion_pool[$ role];
+        for (var i = 0; i < array_length(champs_in_role); i++) {
+            array_push(all_champions, champs_in_role[i]);
+        }
+    }
+    
+    // Filter out already banned champions
+    var available = [];
+    for (var i = 0; i < array_length(all_champions); i++) {
+        var champ = all_champions[i];
+        var is_banned = false;
+        
+        for (var j = 0; j < array_length(ban_state.all_bans); j++) {
+            if (ban_state.all_bans[j].name == champ.name) {
+                is_banned = true;
+                break;
+            }
+        }
+        
+        if (!is_banned) {
+            array_push(available, champ);
+        }
+    }
+    
+    return available;
+}
+
+
+function make_ban(ban_state, champion) {
+    var current_team = get_current_team_banning(ban_state);
+    
+    if (current_team == 1) {
+        array_push(ban_state.team1_bans, champion);
+    } else {
+        array_push(ban_state.team2_bans, champion);
+    }
+    
+    array_push(ban_state.all_bans, champion);
+    ban_state.current_ban++;
+    
+    if (ban_state.current_ban >= 6) {
+        ban_state.active = false;
+    }
+    
+    return ban_state.active;
+}
+
+function ai_ban_champion(ban_state) {
+    var available = get_available_champions_for_ban(ban_state);
+    
+    if (array_length(available) > 0) {
+        // AI bans randomly for now (could be smarter later)
+        var random_index = irandom(array_length(available) - 1);
+        return available[random_index];
+    }
+    
+    return noone;
 }
 
 // ===================================
@@ -826,6 +932,7 @@ function get_available_champions(draft) {
     for (var i = 0; i < array_length(all_champs); i++) {
         var champ = all_champs[i];
         var is_picked = false;
+		var is_banned = false; 
         
         for (var j = 0; j < array_length(draft.picked_champions); j++) {
             if (draft.picked_champions[j].name == champ.name) {
@@ -834,7 +941,15 @@ function get_available_champions(draft) {
             }
         }
         
-        if (!is_picked) {
+		// Check if banned
+        for (var j = 0; j < array_length(global.banned_champions); j++) {
+            if (global.banned_champions[j].name == champ.name) {
+                is_banned = true;
+                break;
+            }
+        }
+        
+        if (!is_picked && !is_banned) {
             array_push(available, champ);
         }
     }
@@ -1114,4 +1229,242 @@ show_debug_message("\n" + team2.name + " Stats:");
 for (var i = 0; i < array_length(team2.players); i++) {
     var p = team2.players[i];
     show_debug_message(p.name + " (" + p.role + "): " + string(p.kills) + "/" + string(p.deaths) + "/" + string(p.assists));
+}
+
+
+// ===================================
+// MAP VISUAL SYSTEM
+// ===================================
+
+// Create map state for visual representation
+function create_map_state() {
+    return {
+        // Tower states (true = standing, false = destroyed)
+        team1_towers: {
+            top: [true, true, true],      // Outer, Inner, Inhibitor
+            mid: [true, true, true],
+            bot: [true, true, true],
+            nexus: [true, true]            // Nexus towers
+        },
+        team2_towers: {
+            top: [true, true, true],
+            mid: [true, true, true],
+            bot: [true, true, true],
+            nexus: [true, true]
+        },
+        
+        // Active event animations
+        active_events: [],
+        
+        // Gold lead for bar chart
+        gold_lead: 0  // Positive = team1 ahead, negative = team2 ahead
+    };
+}
+
+// Add an event animation
+function add_map_event(_map_state, _type, _data) {
+    var event = {
+        type: _type,  // "tower_destroyed", "dragon_taken", "baron_taken", "kill"
+        data: _data,
+        timer: 0,
+        duration: 60  // Frames to show animation
+    };
+    array_push(_map_state.active_events, event);
+}
+
+// Update map state based on match state
+function update_map_visuals(_map_state, _match_state) {
+    
+    // Update gold lead
+    _map_state.gold_lead = _match_state.team1.gold - _match_state.team2.gold;
+    
+    // Update tower states based on tower count
+    // This is approximate - we don't track individual towers, just counts
+    var t1_towers_destroyed = 11 - _match_state.team1.towers;
+    var t2_towers_destroyed = 11 - _match_state.team2.towers;
+    
+    // Simplified: Mark towers as destroyed from outer to inner
+    // Team 1 towers (top to bottom, outer to inner)
+    var destroyed_count = 0;
+    for (var lane = 0; lane < 3; lane++) {
+        var lane_name = (lane == 0) ? "top" : ((lane == 1) ? "mid" : "bot");
+        for (var tower = 0; tower < 3; tower++) {
+            if (destroyed_count < t2_towers_destroyed) {
+                _map_state.team2_towers[$ lane_name][tower] = false;
+                destroyed_count++;
+            }
+        }
+    }
+    
+    // Nexus towers
+    if (destroyed_count < t2_towers_destroyed) {
+        _map_state.team2_towers.nexus[0] = false;
+        destroyed_count++;
+    }
+    if (destroyed_count < t2_towers_destroyed) {
+        _map_state.team2_towers.nexus[1] = false;
+    }
+    
+    // Same for team 1
+    destroyed_count = 0;
+    for (var lane = 0; lane < 3; lane++) {
+        var lane_name = (lane == 0) ? "top" : ((lane == 1) ? "mid" : "bot");
+        for (var tower = 0; tower < 3; tower++) {
+            if (destroyed_count < t1_towers_destroyed) {
+                _map_state.team1_towers[$ lane_name][tower] = false;
+                destroyed_count++;
+            }
+        }
+    }
+    
+    if (destroyed_count < t1_towers_destroyed) {
+        _map_state.team1_towers.nexus[0] = false;
+        destroyed_count++;
+    }
+    if (destroyed_count < t1_towers_destroyed) {
+        _map_state.team1_towers.nexus[1] = false;
+    }
+    
+    // Update event animations
+    for (var i = array_length(_map_state.active_events) - 1; i >= 0; i--) {
+        _map_state.active_events[i].timer++;
+        
+        // Remove expired events
+        if (_map_state.active_events[i].timer >= _map_state.active_events[i].duration) {
+            array_delete(_map_state.active_events, i, 1);
+        }
+    }
+}
+
+// Draw the simplified Summoner's Rift
+function draw_summoners_rift(_map_state, _x, _y, _width, _height) {
+    
+    // Map background
+    draw_set_color(c_dkgray);
+    draw_rectangle(_x, _y, _x + _width, _y + _height, false);
+    
+    // Draw lanes (diagonal lines)
+    draw_set_color(c_gray);
+    
+    // Top lane
+    draw_line_width(_x + 20, _y + 20, _x + _width - 20, _y + _height/3, 3);
+    
+    // Mid lane
+    draw_line_width(_x + 20, _y + 20, _x + _width - 20, _y + _height - 20, 3);
+    
+    // Bot lane
+    draw_line_width(_x + _width/3, _y + _height - 20, _x + _width - 20, _y + _height - 20, 3);
+    
+    // Draw base areas
+    draw_set_color(c_aqua);
+    draw_rectangle(_x + 10, _y + 10, _x + 60, _y + 60, false);  // Team 1 base
+    
+    draw_set_color(c_red);
+    draw_rectangle(_x + _width - 60, _y + _height - 60, _x + _width - 10, _y + _height - 10, false);  // Team 2 base
+    
+    // Draw towers
+    draw_towers(_map_state, _x, _y, _width, _height);
+    
+    // Draw objective areas
+    draw_set_color(c_purple);
+    draw_circle(_x + _width * 0.3, _y + _height * 0.7, 15, false);  // Dragon pit
+    draw_set_color(c_white);
+    draw_text(_x + _width * 0.3 - 10, _y + _height * 0.7 - 5, "D");
+    
+    draw_set_color(c_purple);
+    draw_circle(_x + _width * 0.7, _y + _height * 0.3, 15, false);  // Baron pit
+    draw_set_color(c_white);
+    draw_text(_x + _width * 0.7 - 10, _y + _height * 0.3 - 5, "B");
+}
+
+// Draw towers on the map
+function draw_towers(_map_state, _x, _y, _width, _height) {
+    
+    var tower_size = 8;
+    
+    // Team 1 towers (blue side - bottom left)
+    // Top lane
+    draw_tower(_map_state.team1_towers.top[0], _x + 80, _y + 40, tower_size, c_aqua);
+    draw_tower(_map_state.team1_towers.top[1], _x + 140, _y + 70, tower_size, c_aqua);
+    draw_tower(_map_state.team1_towers.top[2], _x + 200, _y + 100, tower_size, c_aqua);
+    
+    // Mid lane
+    draw_tower(_map_state.team1_towers.mid[0], _x + 80, _y + 80, tower_size, c_aqua);
+    draw_tower(_map_state.team1_towers.mid[1], _x + 140, _y + 140, tower_size, c_aqua);
+    draw_tower(_map_state.team1_towers.mid[2], _x + 200, _y + 200, tower_size, c_aqua);
+    
+    // Bot lane
+    draw_tower(_map_state.team1_towers.bot[0], _x + 140, _y + _height - 40, tower_size, c_aqua);
+    draw_tower(_map_state.team1_towers.bot[1], _x + 100, _y + _height - 70, tower_size, c_aqua);
+    draw_tower(_map_state.team1_towers.bot[2], _x + 70, _y + _height - 100, tower_size, c_aqua);
+    
+    // Nexus towers
+    draw_tower(_map_state.team1_towers.nexus[0], _x + 30, _y + 70, tower_size, c_aqua);
+    draw_tower(_map_state.team1_towers.nexus[1], _x + 70, _y + 30, tower_size, c_aqua);
+    
+    // Team 2 towers (red side - top right)
+    // Top lane
+    draw_tower(_map_state.team2_towers.top[0], _x + _width - 140, _y + 40, tower_size, c_red);
+    draw_tower(_map_state.team2_towers.top[1], _x + _width - 100, _y + 70, tower_size, c_red);
+    draw_tower(_map_state.team2_towers.top[2], _x + _width - 70, _y + 100, tower_size, c_red);
+    
+    // Mid lane
+    draw_tower(_map_state.team2_towers.mid[0], _x + _width - 80, _y + _height - 80, tower_size, c_red);
+    draw_tower(_map_state.team2_towers.mid[1], _x + _width - 140, _y + _height - 140, tower_size, c_red);
+    draw_tower(_map_state.team2_towers.mid[2], _x + _width - 200, _y + _height - 200, tower_size, c_red);
+    
+    // Bot lane
+    draw_tower(_map_state.team2_towers.bot[0], _x + _width - 40, _y + _height - 140, tower_size, c_red);
+    draw_tower(_map_state.team2_towers.bot[1], _x + _width - 70, _y + _height - 100, tower_size, c_red);
+    draw_tower(_map_state.team2_towers.bot[2], _x + _width - 100, _y + _height - 70, tower_size, c_red);
+    
+    // Nexus towers
+    draw_tower(_map_state.team2_towers.nexus[0], _x + _width - 30, _y + _height - 70, tower_size, c_red);
+    draw_tower(_map_state.team2_towers.nexus[1], _x + _width - 70, _y + _height - 30, tower_size, c_red);
+}
+
+// Draw individual tower
+function draw_tower(_standing, _x, _y, _size, _team_color) {
+    if (_standing) {
+        draw_set_color(_team_color);
+        draw_rectangle(_x - _size, _y - _size, _x + _size, _y + _size, false);
+    } else {
+        draw_set_color(c_black);
+        draw_rectangle(_x - _size, _y - _size, _x + _size, _y + _size, false);
+        draw_set_color(c_dkgray);
+        draw_rectangle(_x - _size + 2, _y - _size + 2, _x + _size - 2, _y + _size - 2, false);
+    }
+}
+
+// Draw gold lead bar
+function draw_gold_lead(_gold_diff, _x, _y, _width) {
+    
+    // Background
+    draw_set_color(c_dkgray);
+    draw_rectangle(_x, _y, _x + _width, _y + 20, false);
+    
+    // Center line
+    draw_set_color(c_white);
+    draw_line(_x + _width/2, _y, _x + _width/2, _y + 20);
+    
+    // Gold lead bar
+    var max_gold_display = 15000;  // Max gold difference to show
+    var lead_ratio = clamp(_gold_diff / max_gold_display, -1, 1);
+    var bar_width = abs(lead_ratio) * (_width/2);
+    
+    if (_gold_diff > 0) {
+        // Team 1 ahead
+        draw_set_color(c_aqua);
+        draw_rectangle(_x + _width/2, _y + 2, _x + _width/2 + bar_width, _y + 18, false);
+    } else if (_gold_diff < 0) {
+        // Team 2 ahead
+        draw_set_color(c_red);
+        draw_rectangle(_x + _width/2 - bar_width, _y + 2, _x + _width/2, _y + 18, false);
+    }
+    
+    // Gold difference text
+    draw_set_color(c_white);
+    draw_set_halign(fa_center);
+    draw_text(_x + _width/2, _y + 25, "Gold: " + string(abs(round(_gold_diff))));
+    draw_set_halign(fa_left);
 }

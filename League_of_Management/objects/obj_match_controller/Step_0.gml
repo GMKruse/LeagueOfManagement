@@ -57,15 +57,85 @@ if (player_draft.active) {
     // Check if player draft complete
     if (!player_draft.active && !player_draft_complete) {
         player_draft_complete = true;
-        champion_draft = create_draft_state();
+        champion_ban = create_ban_state();
         show_debug_message("Player draft complete! Starting champion draft...");
     }
 }
 
 // ===================================
+// BAN PHASE
+// ===================================
+if (player_draft_complete && champion_ban.active) {
+    
+    var current_team = get_current_team_banning(champion_ban);
+    
+    // Team 1 (Player) bans
+    if (current_team == 1) {
+        
+        if (mouse_check_button_pressed(mb_left)) {
+            
+            var available = get_available_champions_for_ban(champion_ban);
+            
+            var max_per_col = 15;
+            var col_width = 220;
+            
+            for (var i = 0; i < array_length(available); i++) {
+                
+                var col = floor(i / max_per_col);
+                var row_in_col = i % max_per_col;
+                
+                var button_x = room_width/2 - 330 + (col * col_width);
+                var button_y = 250 + (row_in_col * 28);
+                var button_width = 200;
+                var button_height = 25;
+                
+                if (point_in_rectangle(mouse_x, mouse_y, 
+                    button_x, button_y, button_x + button_width, button_y + button_height)) {
+                    
+                    make_ban(champion_ban, available[i]);
+                    show_debug_message("Blue Team banned: " + available[i].name);
+                    break;
+                }
+            }
+        }
+    }
+    // Team 2 (AI) bans
+    else {
+        
+        if (!variable_instance_exists(id, "ai_pick_timer")) {
+            ai_pick_timer = 0;
+        }
+        
+        ai_pick_timer++;
+        
+        if (ai_pick_timer >= 60) {
+            var ai_choice = ai_ban_champion(champion_ban);
+            
+            if (ai_choice != noone) {
+                make_ban(champion_ban, ai_choice);
+                show_debug_message("Red Team banned: " + ai_choice.name);
+            }
+            
+            ai_pick_timer = 0;
+        }
+    }
+    
+    // Check if ban phase complete
+    if (!champion_ban.active && !ban_phase_complete) {
+        ban_phase_complete = true;
+        champion_draft = create_draft_state()
+        // Store banned champions globally for champion draft to access
+        global.banned_champions = champion_ban.all_bans;
+        show_debug_message("Ban phase complete! Starting player draft...");
+    }
+}
+
+
+
+// ===================================
 // CHAMPION DRAFT PHASE
 // ===================================
-else if (player_draft_complete && champion_draft.active) {
+else if (ban_phase_complete && champion_draft.active) {
     
     var current_team = get_current_team(champion_draft);
     
@@ -142,6 +212,7 @@ else if (player_draft_complete && !champion_draft.active && !match_started && !m
             
             // Start real-time match
             match_state = create_match_state(global.team1, global.team2);
+			map_state = create_map_state(); 
             match_started = true;
             show_debug_message("Match started!");
         }
@@ -200,6 +271,10 @@ else if (match_started && !match_simulated) {
                 process_match_tick(match_state);
                 match_state.last_tick_time = match_state.game_time;
             }
+			
+			// Update map visuals
+            update_map_visuals(map_state, match_state); 
+			
         }
         
         // Check if match ended
