@@ -1,3 +1,6 @@
+
+room_goto(Room2)
+
 // Initialize pools
 init_champion_pool();
 init_player_pool();

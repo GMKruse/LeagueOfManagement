@@ -1,0 +1,2 @@
+alive = false
+attackable = false
