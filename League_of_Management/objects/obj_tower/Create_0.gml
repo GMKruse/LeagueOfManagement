@@ -1,2 +1,2 @@
-alive = false
 attackable = false
+givenId = 0 

@@ -1,2 +1,1 @@
-alive = false
 attackable = false

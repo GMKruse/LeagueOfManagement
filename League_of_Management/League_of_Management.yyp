@@ -48,6 +48,7 @@
     {"id":{"name":"Room1","path":"rooms/Room1/Room1.yy",},},
     {"id":{"name":"Room2","path":"rooms/Room2/Room2.yy",},},
     {"id":{"name":"scr_matchSimulator","path":"scripts/scr_matchSimulator/scr_matchSimulator.yy",},},
+    {"id":{"name":"scr_objective","path":"scripts/scr_objective/scr_objective.yy",},},
     {"id":{"name":"sqr_createMap","path":"scripts/sqr_createMap/sqr_createMap.yy",},},
     {"id":{"name":"background","path":"sprites/background/background.yy",},},
     {"id":{"name":"spr_baronIcon","path":"sprites/spr_baronIcon/spr_baronIcon.yy",},},

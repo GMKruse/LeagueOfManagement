@@ -1,5 +1,5 @@
 createNexus()
 createInhibitors()
 createTowers()
-toggleDragon()
-toggleBaron()
+createDragon()
+createBaron()
