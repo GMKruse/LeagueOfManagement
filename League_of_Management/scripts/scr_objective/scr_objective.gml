@@ -6,7 +6,7 @@ function destroyTower(towerId){
 			array_delete(attackableTowers, i, 1)
 		}
 	}
-	if(towerId == 8 || ){
-		array_push(attackableTowers, towerArray[])
-	}
+	//if(towerId == 8 || ){
+	//	array_push(attackableTowers, towerArray[])
+	//}
 }
