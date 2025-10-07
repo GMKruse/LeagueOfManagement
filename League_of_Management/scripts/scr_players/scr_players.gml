@@ -1,5 +1,6 @@
 #region // Player Pool
-global.player_pool = {
+init_player_pool(){
+	return global.player_pool = {
         top: [
             create_player("Zeus", "Top", 92, 85, 88, spr_Zeus),
             create_player("Kingen", "Top", 85, 88, 82, spr_Kingen),
@@ -31,11 +32,13 @@ global.player_pool = {
             create_player("Missing", "Support", 82, 90, 80)
         ]
     };
+}
+
 #endregion
 
 // Create a pro player struct (without champion assigned yet)
 function create_player(_name, _role, _mechanics, _teamwork, _knowledge, _player_sprite = spr_question_mark) {
-    var player = instance_create_depth(0, 0, 0, obj_player)
+    var player = instance_create_depth(0, 0, -1, obj_player)
 	
 	with(player){
         self.name = _name
@@ -48,7 +51,15 @@ function create_player(_name, _role, _mechanics, _teamwork, _knowledge, _player_
         self.kills = 0
         self.deaths = 0
         self.assists = 0
+		
     };
+	variable_struct_set(global.player_id_map, _name, player)
+	
+	return player 
+}
+
+function get_player_id(_name){
+	return global.player_id_map[_name]
 }
 
 function set_champion_for_player(_player_id, _champion_id){

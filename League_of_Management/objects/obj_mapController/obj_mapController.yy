@@ -8,8 +8,8 @@
   "name":"obj_mapController",
   "overriddenProperties":[],
   "parent":{
-    "name":"grp_map",
-    "path":"folders/Objects/grp_UI/grp_map.yy",
+    "name":"grp_UI",
+    "path":"folders/Objects/grp_UI.yy",
   },
   "parentObjectId":null,
   "persistent":false,

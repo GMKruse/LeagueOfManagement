@@ -5,9 +5,10 @@ function createTeam(_name, _players = []){
 		self.name = _name
 		self.players = _players
 		}
+	return team
 }
 
-function add_palyer_to_team(_team_in, _player_id){
+function add_palyer_to_team(_team_id, _player_id){
 	with(_team_id){
 		array_push(self.players, _player_id)
 		}
