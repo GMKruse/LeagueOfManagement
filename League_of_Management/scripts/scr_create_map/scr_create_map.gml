@@ -201,18 +201,18 @@ function createTowers() {
         var tower = instance_create_depth(global.towerXPositions[i], global.towerYPositions[i], -1, obj_tower);
         
         with (tower) {
-            given_id = i;
-            image_xscale = 0.04;
-            image_yscale = 0.04;
+            self.given_id = i;
+            self.image_xscale = 0.04;
+            self.image_yscale = 0.04;
             
             // Set tower properties from metadata
             var meta = global.towerMetadata[i];
-            tower_type = meta[0];
-            lane = meta[1];
-            team = meta[2];
+            self.tower_type = meta[0];
+            self.lane = meta[1];
+            self.team = meta[2];
             
             // Only outer towers start as attackable
-            is_attackable = (tower_type == TOWER_TYPE.OUTER);
+            self.is_attackable = (tower_type == TOWER_TYPE.OUTER);
         }
         
         array_push(global.towerArray, tower);
@@ -234,15 +234,15 @@ function createInhibitors() {
         var inhibitor = instance_create_depth(global.inhibitorXPositions[i], global.inhibitorYPositions[i], -1, obj_inhibitor);
         
         with (inhibitor) {
-            given_id = i;
-            image_xscale = 0.04;
-            image_yscale = 0.04;
+            self.given_id = i;
+            self.image_xscale = 0.04;
+            self.image_yscale = 0.04;
             
             // Set inhibitor properties
             var meta = global.inhibitorMetadata[i];
-            lane = meta[0];
-            team = meta[1];
-            is_attackable = false;  // Inhibitors start locked
+            self.lane = meta[0];
+            self.team = meta[1];
+            self.is_attackable = false;  // Inhibitors start locked
         }
         
         array_push(global.inhibitorArray, inhibitor);
@@ -259,10 +259,10 @@ function createNexus() {
         var nexus = instance_create_depth(global.nexusXPositions[i], global.nexusYPositions[i], -1, obj_nexus);
         
         with (nexus) {
-            image_xscale = 0.06;
-            image_yscale = 0.06;
-            team = (i == 0) ? TEAM.BLUE : TEAM.RED;
-            is_attackable = false;  // Nexus starts locked
+            self.image_xscale = 0.06;
+            self.image_yscale = 0.06;
+            self.team = (i == 0) ? TEAM.BLUE : TEAM.RED;
+            self.is_attackable = false;  // Nexus starts locked
         }
         
         array_push(global.nexusArray, nexus);
@@ -272,16 +272,16 @@ function createNexus() {
 function createDragon() {
     var dragon = instance_create_depth(832, 468, -1, obj_dragon);
     with (dragon) {
-        image_xscale = 0.1;
-        image_yscale = 0.1;
+        self.image_xscale = 0.1;
+        self.image_yscale = 0.1;
     }
 }
 
 function createBaron() {
     var baron = instance_create_depth(590, 215, -1, obj_baron);
     with (baron) {
-        image_xscale = 0.1;
-        image_yscale = 0.1;
+        self.image_xscale = 0.1;
+        self.image_yscale = 0.1;
     }
 }
 #endregion

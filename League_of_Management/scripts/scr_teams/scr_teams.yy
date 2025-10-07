@@ -1,9 +1,9 @@
 {
   "$GMScript":"v1",
-  "%Name":"sqr_createMap",
+  "%Name":"scr_teams",
   "isCompatibility":false,
   "isDnD":false,
-  "name":"sqr_createMap",
+  "name":"scr_teams",
   "parent":{
     "name":"Scripts",
     "path":"folders/Scripts.yy",

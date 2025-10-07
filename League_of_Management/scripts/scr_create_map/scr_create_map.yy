@@ -1,0 +1,13 @@
+{
+  "$GMScript":"v1",
+  "%Name":"scr_create_map",
+  "isCompatibility":false,
+  "isDnD":false,
+  "name":"scr_create_map",
+  "parent":{
+    "name":"grp_UI",
+    "path":"folders/Scripts/grp_UI.yy",
+  },
+  "resourceType":"GMScript",
+  "resourceVersion":"2.0",
+}

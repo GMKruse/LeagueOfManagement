@@ -1,0 +1,13 @@
+{
+  "$GMScript":"v1",
+  "%Name":"scr_create_teams",
+  "isCompatibility":false,
+  "isDnD":false,
+  "name":"scr_create_teams",
+  "parent":{
+    "name":"grp_UI",
+    "path":"folders/Scripts/grp_UI.yy",
+  },
+  "resourceType":"GMScript",
+  "resourceVersion":"2.0",
+}

@@ -19,7 +19,7 @@ function create_champion(_name, _role, _mech_scale, _team_scale, _know_scale, _e
 // Create a pro player struct (without champion assigned yet)
 function create_pro_player(_name, _role, _mechanics, _teamwork, _knowledge) {
     return {
-        name: _name,
+        name: _name, 
         role: _role,
         mechanics: _mechanics,      // 1-100
         teamwork: _teamwork,        // 1-100
@@ -36,20 +36,6 @@ function assign_champion_to_player(_player, _champion) {
     _player.champion = _champion;
 }
 
-// Create a player struct (legacy - for when we already have champion)
-function create_player(_name, _role, _mechanics, _teamwork, _knowledge, _champion) {
-    return {
-        name: _name,
-        role: _role,
-        mechanics: _mechanics,      // 1-100
-        teamwork: _teamwork,        // 1-100
-        knowledge: _knowledge,      // 1-100
-        champion: _champion,        // Champion struct
-        kills: 0,
-        deaths: 0,
-        assists: 0
-    };
-}
 
 // Create a team struct
 function create_team(_name, _players) {
@@ -1183,53 +1169,53 @@ function distribute_kills(_team, _total_kills, _enemy_team) {
     // This function is no longer used in real-time matches
 }
 
-// ===================================
-// EXAMPLE USAGE
-// ===================================
+//// ===================================
+//// EXAMPLE USAGE
+//// ===================================
 
-// Initialize champion pool
-init_champion_pool();
+//// Initialize champion pool
+//init_champion_pool();
 
-// Create Team 1 - Picks champions from pool
-var team1_players = [
-    create_player("PlayerA", "Top", 75, 70, 65, global.champion_pool.top[0]),      // Shen
-    create_player("PlayerB", "Jungle", 80, 75, 70, global.champion_pool.jungle[0]), // Lee Sin
-    create_player("PlayerC", "Mid", 85, 65, 75, global.champion_pool.mid[0]),      // Yasuo
-    create_player("PlayerD", "ADC", 70, 80, 60, global.champion_pool.adc[0]),      // Vayne
-    create_player("PlayerE", "Support", 60, 85, 70, global.champion_pool.support[0]) // Janna
-];
-var team1 = create_team("Blue Team", team1_players);
+//// Create Team 1 - Picks champions from pool
+//var team1_players = [
+//    create_player("PlayerA", "Top", 75, 70, 65, global.champion_pool.top[0]),      // Shen
+//    create_player("PlayerB", "Jungle", 80, 75, 70, global.champion_pool.jungle[0]), // Lee Sin
+//    create_player("PlayerC", "Mid", 85, 65, 75, global.champion_pool.mid[0]),      // Yasuo
+//    create_player("PlayerD", "ADC", 70, 80, 60, global.champion_pool.adc[0]),      // Vayne
+//    create_player("PlayerE", "Support", 60, 85, 70, global.champion_pool.support[0]) // Janna
+//];
+//var team1 = create_team("Blue Team", team1_players);
 
-// Create Team 2 - Different champion picks
-var team2_players = [
-    create_player("PlayerF", "Top", 70, 75, 70, global.champion_pool.top[1]),      // Aatrox
-    create_player("PlayerG", "Jungle", 75, 70, 75, global.champion_pool.jungle[1]), // Shyvana
-    create_player("PlayerH", "Mid", 80, 70, 80, global.champion_pool.mid[1]),      // Galio
-    create_player("PlayerI", "ADC", 75, 75, 65, global.champion_pool.adc[1]),      // Ashe
-    create_player("PlayerJ", "Support", 65, 80, 75, global.champion_pool.support[1]) // Bard
-];
-var team2 = create_team("Red Team", team2_players);
+//// Create Team 2 - Different champion picks
+//var team2_players = [
+//    create_player("PlayerF", "Top", 70, 75, 70, global.champion_pool.top[1]),      // Aatrox
+//    create_player("PlayerG", "Jungle", 75, 70, 75, global.champion_pool.jungle[1]), // Shyvana
+//    create_player("PlayerH", "Mid", 80, 70, 80, global.champion_pool.mid[1]),      // Galio
+//    create_player("PlayerI", "ADC", 75, 75, 65, global.champion_pool.adc[1]),      // Ashe
+//    create_player("PlayerJ", "Support", 65, 80, 75, global.champion_pool.support[1]) // Bard
+//];
+//var team2 = create_team("Red Team", team2_players);
 
-// Simulate match
-var winner = simulate_match(team1, team2);
+//// Simulate match
+//var winner = simulate_match(team1, team2);
 
-// Display results
-show_debug_message("=================================");
-show_debug_message("MATCH RESULT: " + winner.name + " WINS!");
-show_debug_message("=================================");
+//// Display results
+//show_debug_message("=================================");
+//show_debug_message("MATCH RESULT: " + winner.name + " WINS!");
+//show_debug_message("=================================");
 
-// Show stats for both teams
-show_debug_message("\n" + team1.name + " Stats:");
-for (var i = 0; i < array_length(team1.players); i++) {
-    var p = team1.players[i];
-    show_debug_message(p.name + " (" + p.role + "): " + string(p.kills) + "/" + string(p.deaths) + "/" + string(p.assists));
-}
+//// Show stats for both teams
+//show_debug_message("\n" + team1.name + " Stats:");
+//for (var i = 0; i < array_length(team1.players); i++) {
+//    var p = team1.players[i];
+//    show_debug_message(p.name + " (" + p.role + "): " + string(p.kills) + "/" + string(p.deaths) + "/" + string(p.assists));
+//}
 
-show_debug_message("\n" + team2.name + " Stats:");
-for (var i = 0; i < array_length(team2.players); i++) {
-    var p = team2.players[i];
-    show_debug_message(p.name + " (" + p.role + "): " + string(p.kills) + "/" + string(p.deaths) + "/" + string(p.assists));
-}
+//show_debug_message("\n" + team2.name + " Stats:");
+//for (var i = 0; i < array_length(team2.players); i++) {
+//    var p = team2.players[i];
+//    show_debug_message(p.name + " (" + p.role + "): " + string(p.kills) + "/" + string(p.deaths) + "/" + string(p.assists));
+//}
 
 
 // ===================================

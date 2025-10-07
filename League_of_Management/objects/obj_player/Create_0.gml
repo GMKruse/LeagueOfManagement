@@ -1,0 +1,11 @@
+name = noone
+player_sprite = spr_question_mark
+lane = noone
+role = noone
+mechanics = -1
+teamwork = -1
+knowledge = -1
+champion = noone
+kills = -1
+deaths = -1
+assists = -1

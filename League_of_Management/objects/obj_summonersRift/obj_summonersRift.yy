@@ -7,7 +7,7 @@
   "overriddenProperties":[],
   "parent":{
     "name":"grp_map",
-    "path":"folders/Objects/grp_map.yy",
+    "path":"folders/Objects/grp_UI/grp_map.yy",
   },
   "parentObjectId":null,
   "persistent":false,
