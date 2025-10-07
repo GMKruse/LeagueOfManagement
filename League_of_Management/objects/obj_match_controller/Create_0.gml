@@ -1,5 +1,5 @@
 
-room_goto(Room2)
+//room_goto(Room2)
 
 //// Initialize pools
 //init_champion_pool();

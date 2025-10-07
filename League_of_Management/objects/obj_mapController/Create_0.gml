@@ -1,10 +1,9 @@
-createNexus()
-createInhibitors()
-createTowers()
-createDragon()
-createBaron()
+//createNexus()
+//createInhibitors()
+//createTowers()
+//createDragon()
+//createBaron()
 
-global.player_id_map = {};
 
 init_player_pool()
 
