@@ -1,5 +1,3 @@
-/// @description Handle Input and Focus Logic
-
 // Handle Clicks/Focus Change
 if (mouse_check_button_pressed(mb_left)) {
     // Check if the click was within the bounding box of the input field (defined in Create Event)

@@ -1,10 +1,6 @@
-/// @description Initialize Input Field
-
-// ... existing variables ...
-input_text = "";           // The actual text the user enters
+input_text = "";         
 max_length = 15;           
 is_focused = true;        
-// ... existing variables ...
 
 // Define the size and position for drawing the background box
 x1 = x;

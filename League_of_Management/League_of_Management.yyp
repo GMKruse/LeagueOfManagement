@@ -43,7 +43,7 @@
   "resources":[
     {"id":{"name":"obj_background","path":"objects/obj_background/obj_background.yy",},},
     {"id":{"name":"obj_baron","path":"objects/obj_baron/obj_baron.yy",},},
-    {"id":{"name":"obj_create_team_botton","path":"objects/obj_create_team_botton/obj_create_team_botton.yy",},},
+    {"id":{"name":"obj_botton","path":"objects/obj_botton/obj_botton.yy",},},
     {"id":{"name":"obj_dragon","path":"objects/obj_dragon/obj_dragon.yy",},},
     {"id":{"name":"obj_inhibitor","path":"objects/obj_inhibitor/obj_inhibitor.yy",},},
     {"id":{"name":"obj_input_field","path":"objects/obj_input_field/obj_input_field.yy",},},
