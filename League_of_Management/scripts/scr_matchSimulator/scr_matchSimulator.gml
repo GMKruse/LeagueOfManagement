@@ -650,44 +650,6 @@ function init_champion_pool() {
 	};
 }
 
-// ===================================
-// PLAYER POOL
-// ===================================
-
-function init_player_pool() {
-    global.player_pool = {
-        top: [
-            create_pro_player("Zeus", "Top", 92, 85, 88),
-            create_pro_player("Kingen", "Top", 85, 88, 82),
-            create_pro_player("TheShy", "Top", 95, 70, 75),
-            create_pro_player("Bin", "Top", 88, 80, 83)
-        ],
-        jungle: [
-            create_pro_player("Canyon", "Jungle", 90, 92, 94),
-            create_pro_player("Oner", "Jungle", 88, 90, 87),
-            create_pro_player("Peanut", "Jungle", 85, 82, 90),
-            create_pro_player("Jiejie", "Jungle", 82, 88, 85)
-        ],
-        mid: [
-            create_pro_player("Faker", "Mid", 85, 90, 98),
-            create_pro_player("Chovy", "Mid", 95, 82, 92),
-            create_pro_player("Showmaker", "Mid", 92, 88, 90),
-            create_pro_player("Knight", "Mid", 90, 85, 88)
-        ],
-        adc: [
-            create_pro_player("Gumayusi", "ADC", 93, 88, 85),
-            create_pro_player("Viper", "ADC", 90, 90, 88),
-            create_pro_player("Ruler", "ADC", 88, 92, 90),
-            create_pro_player("Elk", "ADC", 85, 85, 82)
-        ],
-        support: [
-            create_pro_player("Keria", "Support", 85, 95, 92),
-            create_pro_player("Meiko", "Support", 80, 92, 88),
-            create_pro_player("Lehends", "Support", 88, 88, 85),
-            create_pro_player("Missing", "Support", 82, 90, 80)
-        ]
-    };
-}
 
 // ===================================
 // CHAMPION BAN SYSTEM

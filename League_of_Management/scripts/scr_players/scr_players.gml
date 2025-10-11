@@ -1,6 +1,6 @@
 #region // Player Pool
-init_player_pool(){
-	return global.player_pool = {
+function init_player_pool(){
+	global.player_pool = {
         top: [
             create_player("Zeus", "Top", 92, 85, 88, spr_Zeus),
             create_player("Kingen", "Top", 85, 88, 82, spr_Kingen),
@@ -27,11 +27,12 @@ init_player_pool(){
         ],
         support: [
             create_player("Keria", "Support", 85, 95, 92),
-            create_player("Meiko", "Support", 80, 92, 88, spr_Meiko),
+            create_player("Meiko", "Support", 80, 92, 88),
             create_player("Lehends", "Support", 88, 88, 85),
             create_player("Missing", "Support", 82, 90, 80)
         ]
     };
+	return global.player_pool
 }
 
 #endregion
@@ -42,7 +43,7 @@ function create_player(_name, _role, _mechanics, _teamwork, _knowledge, _player_
 	
 	with(player){
         self.name = _name
-		self.player_sprite = _player_sprite
+		self.sprite_index = _player_sprite
         self.role = _role
         self.mechanics = _mechanics     // 1-100
         self.teamwork = _teamwork       // 1-100
@@ -53,14 +54,15 @@ function create_player(_name, _role, _mechanics, _teamwork, _knowledge, _player_
         self.assists = 0
 		
     };
-	variable_struct_set(global.player_id_map, _name, player)
+	variable_struct_set(global.player_id_map, _name, player);
 	
 	return player 
 }
 
 function get_player_id(_name){
-	return global.player_id_map[_name]
+	return variable_struct_get(global.player_id_map, _name);
 }
+
 
 function set_champion_for_player(_player_id, _champion_id){
 	if(_player_id){

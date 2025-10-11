@@ -1,1 +1,0 @@
-global.player_id_map = new struct();

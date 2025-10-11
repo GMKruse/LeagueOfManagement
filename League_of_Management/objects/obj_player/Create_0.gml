@@ -1,5 +1,5 @@
 name = noone
-player_sprite = spr_question_mark
+sprite_index = spr_question_mark
 lane = noone
 role = noone
 mechanics = -1

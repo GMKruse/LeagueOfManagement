@@ -8,8 +8,7 @@ function createTeam(_name, _players = []){
 	return team
 }
 
-function add_palyer_to_team(_team_id, _player_id){
-	with(_team_id){
-		array_push(self.players, _player_id)
-		}
+function add_player_to_team(_team_struct, _player_id) {
+		array_push(_team_struct.players, _player_id);
+		show_debug_message("Added player " + _player_id.name + " to team " + _team_struct.name);
 }

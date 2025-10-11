@@ -9,25 +9,26 @@ global.playerXPositions = [
 	
 global.playerYPositions = [
 	200,
-	250,
 	300,
-	350,
-	400
+	400,
+	500,
+	600
 	]	
 #endregion
 
 
 function create_team_display(_blue_team, _red_team){
+	show_debug_message(array_length(_blue_team.players))
 	if(array_length(global.playerXPositions) == array_length(global.playerYPositions)){
 		for(var  i = 0; i < array_length(global.playerXPositions); i++){
-			if(i < 5){		
+			if(i <= 4){		
 				var player = get_player_id(_blue_team.players[i].name)
 				
 				with(player){
 					self.x = global.playerXPositions[i]
 					self.y = global.playerYPositions[i]
 				}
-				show_debug_message("I was here")
+				show_debug_message("Created: " + (_blue_team.players[i].name))
 			}
 		}
 	}

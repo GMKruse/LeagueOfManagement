@@ -309,15 +309,15 @@ else if (player_draft_complete && champion_draft.active) {
     draw_text(room_width/2, 95, "BANNED:");
     draw_set_color(c_white);
     
-    var ban_text = "";
-    for (var i = 0; i < array_length(global.banned_champions); i++) {
-        ban_text += global.banned_champions[i].name;
-        if (i < array_length(global.banned_champions) - 1) {
-            ban_text += ", ";
-        }
-    }
-    draw_text(room_width/2, 115, ban_text);
-    draw_set_halign(fa_left);
+    //var ban_text = "";
+    //for (var i = 0; i < array_length(global.banned_champions); i++) {
+    //    ban_text += global.banned_champions[i].name;
+    //    if (i < array_length(global.banned_champions) - 1) {
+    //        ban_text += ", ";
+    //    }
+    //}
+    //draw_text(room_width/2, 115, ban_text);
+    //draw_set_halign(fa_left);
     
     // Adjust the team picks to start lower
     // Team 1 picks (top left)
