@@ -17,19 +17,60 @@ global.playerYPositions = [
 #endregion
 
 
-function create_team_display(_blue_team, _red_team){
+function create_team_display(_blue_team, _red_team){	
 	show_debug_message(array_length(_blue_team.players))
 	if(array_length(global.playerXPositions) == array_length(global.playerYPositions)){
 		for(var  i = 0; i < array_length(global.playerXPositions); i++){
 			if(i <= 4){		
-				var player = get_player_id(_blue_team.players[i].name)
-				
-				with(player){
-					self.x = global.playerXPositions[i]
-					self.y = global.playerYPositions[i]
-				}
-				show_debug_message("Created: " + (_blue_team.players[i].name))
+				var player = _blue_team.players[i]
+				create_player_display(player, i)
 			}
 		}
+	}
+}
+
+
+//function update_player_display(_player_instance) {
+//	// Create a new display
+//    var display = instance_create_depth(10, 0, -1, obj_player_display);
+//    with (display) {
+//        self.player = _player_instance;
+//        self.x = _player_instance.x;
+//        self.y = _player_instance.y;
+//    }
+
+//    // Update the player's display_id
+//    _player_instance.display_id = display.id;
+//    show_debug_message("Created new display for player " + string(_player_instance.name));
+//}
+
+
+function create_player_display(_player, index){
+	var display = instance_create_depth(500, 500, -1, obj_player_display)
+				
+	with(_player){
+		self.display_id = display.id
+		show_debug_message("I set the Display")
+	}
+				
+	with(display){
+		self.player = _player
+		self.x = global.playerXPositions[index]
+		self.y = global.playerYPositions[index]
+	}
+	show_debug_message("Created: " + (_player.name) + " at " + string(global.playerXPositions[index]) + ", " + string(global.playerYPositions[index]))
+}
+
+
+function destroy_player_display(_display_id){
+	if(_display_id != -1){
+	    if (instance_exists(_display_id)) {
+	        show_debug_message("Destroying display_id: " + string(_display_id));
+	        instance_destroy(_display_id);
+	    } else {
+	        show_debug_message("Warning: display_id does not exist");
+	    }
+	}else{
+		show_debug_message("Nothing to delete " + string(_display_id))
 	}
 }

@@ -39,7 +39,7 @@ function init_player_pool(){
 
 // Create a pro player struct (without champion assigned yet)
 function create_player(_name, _role, _mechanics, _teamwork, _knowledge, _player_sprite = spr_question_mark) {
-    var player = instance_create_depth(0, 0, -1, obj_player)
+    var player = instance_create_depth(-100, -100, -1, obj_player)
 	
 	with(player){
         self.name = _name

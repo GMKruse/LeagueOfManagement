@@ -2,6 +2,8 @@
 // MUST be called, otherwise the default sprite_index will not be drawn.
 draw_self(); 
 
+sprite_index = player.sprite_index
+
 // --- 2. Set up Text Drawing ---
 // Choose a font (assuming you have a default or custom font resource)
 draw_set_font(-1); 
@@ -22,7 +24,7 @@ draw_set_halign(fa_left);
 var _text_x = x + sprite_get_width(sprite_index) / 2 + 10;
 var _text_y = y; // Keep the same vertical position
 
-draw_text(_text_x, _text_y, name);
+draw_text(_text_x, _text_y, player.name);
 
 // --- 4. Reset Drawing Settings ---
 // Always a good practice to reset settings after custom drawing

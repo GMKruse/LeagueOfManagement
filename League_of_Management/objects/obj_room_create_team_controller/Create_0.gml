@@ -7,9 +7,11 @@ team_name_input = instance_create_depth(input_x_pos, input_y_pos, -1, obj_input_
 
 var botton_x_pos = room_width*0.5
 var botton_y_pos = room_height*0.75
-botton = instance_create_depth(botton_x_pos, botton_y_pos, -1, obj_botton)
+botton = instance_create_depth(botton_x_pos, botton_y_pos, -1, obj_botton_create_team)
 with(botton){
 	self.image_xscale = 0.2
 	self.image_yscale = 0.2
-	self.text = "Create Team"
+	self.botton_text = "Create Team" 
+	self.input_instance_id = other.team_name_input; 
+	self.next_room = room_draft_players
 }

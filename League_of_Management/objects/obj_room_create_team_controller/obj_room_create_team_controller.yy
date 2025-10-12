@@ -1,17 +1,15 @@
 {
   "$GMObject":"",
-  "%Name":"obj_botton",
+  "%Name":"obj_room_create_team_controller",
   "eventList":[
     {"$GMEvent":"v1","%Name":"","collisionObjectId":null,"eventNum":0,"eventType":0,"isDnD":false,"name":"","resourceType":"GMEvent","resourceVersion":"2.0",},
-    {"$GMEvent":"v1","%Name":"","collisionObjectId":null,"eventNum":0,"eventType":8,"isDnD":false,"name":"","resourceType":"GMEvent","resourceVersion":"2.0",},
-    {"$GMEvent":"v1","%Name":"","collisionObjectId":null,"eventNum":0,"eventType":3,"isDnD":false,"name":"","resourceType":"GMEvent","resourceVersion":"2.0",},
   ],
   "managed":true,
-  "name":"obj_botton",
+  "name":"obj_room_create_team_controller",
   "overriddenProperties":[],
   "parent":{
-    "name":"grp_UI",
-    "path":"folders/Objects/grp_UI.yy",
+    "name":"gpr_room_controllers",
+    "path":"folders/Objects/gpr_room_controllers.yy",
   },
   "parentObjectId":null,
   "persistent":false,
@@ -31,10 +29,7 @@
   "resourceType":"GMObject",
   "resourceVersion":"2.0",
   "solid":false,
-  "spriteId":{
-    "name":"spr_knap",
-    "path":"sprites/spr_knap/spr_knap.yy",
-  },
+  "spriteId":null,
   "spriteMaskId":null,
   "visible":true,
 }

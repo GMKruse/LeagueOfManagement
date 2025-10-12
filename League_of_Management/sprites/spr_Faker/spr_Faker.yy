@@ -23,7 +23,7 @@
   ],
   "name":"spr_Faker",
   "nineSlice":null,
-  "origin":1,
+  "origin":4,
   "parent":{
     "name":"grp_players",
     "path":"folders/Sprites/grp_players.yy",
@@ -78,7 +78,7 @@
     "visibleRange":null,
     "volume":1.0,
     "xorigin":25,
-    "yorigin":0,
+    "yorigin":25,
   },
   "swatchColours":null,
   "swfPrecision":0.5,

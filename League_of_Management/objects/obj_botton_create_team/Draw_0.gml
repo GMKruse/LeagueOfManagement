@@ -28,7 +28,7 @@ draw_set_valign(fa_middle);
 // Draw the text exactly at the instance's center (x, y)
 draw_text_transformed(
     x, y, 
-    text, 
+    botton_text, 
     _text_xscale,
     _text_xscale,
     0

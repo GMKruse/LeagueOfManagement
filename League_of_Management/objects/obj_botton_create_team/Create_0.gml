@@ -1,4 +1,4 @@
-text = "Botton"
+
 text_color = c_white;
 text_font = font_add("Arial", 20, false, false, 32, 127);
 
