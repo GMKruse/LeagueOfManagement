@@ -44,7 +44,11 @@ function add_player_to_team(_team_struct, _new_player_struct, _create_display = 
         show_debug_message("Added player " + _new_player_struct.name + " to team " + _team_struct.name)
 		
 		if(_create_display){
+			if(_team_struct.side == "Red"){
+				create_player_display(_new_instance_id, _index_to_replace + 5)
+			}else{
 			create_player_display(_new_instance_id, _index_to_replace)
+			}
 		}
     }
 }
