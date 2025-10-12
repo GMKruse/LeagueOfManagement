@@ -6,6 +6,9 @@ function createTeam(_name){
 		for(var i = 0; i <= 4; i++){
 			var base_name = "tmp_player" + string(i)
 			self.players[i] = create_player(base_name, "tmp", -1, -1, -1)
+			with(self.players[i]){
+				self.team = team
+			}
 		}
 	}
 	return team
@@ -32,6 +35,11 @@ function add_player_to_team(_team_struct, _new_player_struct, _create_display = 
 		
         var _new_instance_id = get_player_id(_new_player_struct.name);
         _team_struct.players[_index_to_replace] = _new_instance_id;
+		
+		with(_new_instance_id){
+			self.team = _team_struct
+			show_debug_message("Player: " + string(_new_player_struct.name) + " to " + string(self.team) )
+		}
 
         show_debug_message("Added player " + _new_player_struct.name + " to team " + _team_struct.name)
 		

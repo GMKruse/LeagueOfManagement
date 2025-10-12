@@ -4,10 +4,22 @@ global.playerXPositions = [
 	60,
 	60,
 	60,
-	60
+	60,
+	
+	1300,
+	1300,
+	1300,
+	1300,
+	1300
 	]
 	
 global.playerYPositions = [
+	200,
+	300,
+	400,
+	500,
+	600,
+	
 	200,
 	300,
 	400,
@@ -17,13 +29,17 @@ global.playerYPositions = [
 #endregion
 
 
-function create_team_display(_blue_team, _red_team){	
-	show_debug_message(array_length(_blue_team.players))
+function create_team_display(_blue_team, _red_team){
 	if(array_length(global.playerXPositions) == array_length(global.playerYPositions)){
 		for(var  i = 0; i < array_length(global.playerXPositions); i++){
-			if(i <= 4){		
-				var player = _blue_team.players[i]
-				create_player_display(player, i)
+			if (i < 5) {
+			    var blue_player = _blue_team.players[i];
+			    show_debug_message("Blue Team Player Index: " + string(i));
+			    create_player_display(blue_player, i);
+			} else if (i - 5 < 5) {
+			    var red_player = _red_team.players[i - 5];
+			    show_debug_message("Red Team Player Index: " + string(i - 5));
+			    create_player_display(red_player, i);
 			}
 		}
 	}
@@ -31,11 +47,12 @@ function create_team_display(_blue_team, _red_team){
 
 
 function create_player_display(_player, index){
+	show_debug_message("Player Team: " + string(_player.team))
+
 	var display = instance_create_depth(500, 500, -1, obj_player_display)
 				
 	with(_player){
 		self.display_id = display.id
-		show_debug_message("I set the Display")
 	}
 				
 	with(display){
