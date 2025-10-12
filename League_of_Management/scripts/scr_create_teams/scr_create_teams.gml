@@ -30,21 +30,6 @@ function create_team_display(_blue_team, _red_team){
 }
 
 
-//function update_player_display(_player_instance) {
-//	// Create a new display
-//    var display = instance_create_depth(10, 0, -1, obj_player_display);
-//    with (display) {
-//        self.player = _player_instance;
-//        self.x = _player_instance.x;
-//        self.y = _player_instance.y;
-//    }
-
-//    // Update the player's display_id
-//    _player_instance.display_id = display.id;
-//    show_debug_message("Created new display for player " + string(_player_instance.name));
-//}
-
-
 function create_player_display(_player, index){
 	var display = instance_create_depth(500, 500, -1, obj_player_display)
 				
