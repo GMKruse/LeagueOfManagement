@@ -45,9 +45,9 @@ function add_player_to_team(_team_struct, _new_player_struct, _create_display = 
 		
 		if(_create_display){
 			if(_team_struct.side == "Red"){
-				create_player_display(_new_instance_id, _index_to_replace + 5)
+				create_player_display(_new_instance_id, global.playerXPositions[_index_to_replace + 5], global.playerYPositions[_index_to_replace + 5])
 			}else{
-			create_player_display(_new_instance_id, _index_to_replace)
+				create_player_display(_new_instance_id, global.playerXPositions[_index_to_replace], global.playerYPositions[_index_to_replace])
 			}
 		}
     }

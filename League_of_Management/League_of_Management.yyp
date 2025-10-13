@@ -62,6 +62,7 @@
     {"id":{"name":"room_draft_players","path":"rooms/room_draft_players/room_draft_players.yy",},},
     {"id":{"name":"room_game_simulation","path":"rooms/room_game_simulation/room_game_simulation.yy",},},
     {"id":{"name":"Room1","path":"rooms/Room1/Room1.yy",},},
+    {"id":{"name":"scr_champions","path":"scripts/scr_champions/scr_champions.yy",},},
     {"id":{"name":"scr_create_map","path":"scripts/scr_create_map/scr_create_map.yy",},},
     {"id":{"name":"scr_create_teams","path":"scripts/scr_create_teams/scr_create_teams.yy",},},
     {"id":{"name":"scr_matchSimulator","path":"scripts/scr_matchSimulator/scr_matchSimulator.yy",},},

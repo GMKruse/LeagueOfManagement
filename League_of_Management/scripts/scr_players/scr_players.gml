@@ -37,7 +37,7 @@ function init_player_pool(){
 
 #endregion
 
-// Create a pro player struct (without champion assigned yet)
+#region // Create Player
 function create_player(_name, _role, _mechanics, _teamwork, _knowledge, _player_sprite = spr_question_mark) {
     var player = instance_create_depth(-100, -100, -1, obj_player)
 	
@@ -63,6 +63,7 @@ function get_player_id(_name){
 	return variable_struct_get(global.player_id_map, _name);
 }
 
+#endregion
 
 function set_champion_for_player(_player_id, _champion_id){
 	if(_player_id){
@@ -71,3 +72,95 @@ function set_champion_for_player(_player_id, _champion_id){
 		}
 	}
 }
+
+#region //Draft player
+function create_player_draft_state() {
+    return {
+        active: true,
+        current_pick: 0,
+        //team1_picks: [],
+        //team2_picks: [],
+        picked_players: [],
+        current_role_index: 0,
+        pick_order: [1, 2, 2, 1, 1, 2, 2, 1, 1, 2]
+    };
+}
+
+function get_current_team_player_draft(draft) {
+    return draft.pick_order[draft.current_pick];
+}
+
+function get_current_role_player_draft(draft) {
+    var roles = ["Top", "Jungle", "Mid", "ADC", "Support"];
+    return roles[draft.current_role_index];
+}
+
+function get_available_players(draft) {
+    var role = get_current_role_player_draft(draft);
+    var role_key = "";
+    
+	switch(role) {
+        case "Top": role_key = "top"; break;
+        case "Jungle": role_key = "jungle"; break;
+        case "Mid": role_key = "mid"; break;
+        case "ADC": role_key = "adc"; break;
+        case "Support": role_key = "support"; break;
+    }
+    
+    var all_players = global.player_pool[$ role_key];
+    var available = [];
+    
+    for (var i = 0; i < array_length(all_players); i++) {
+        var player = all_players[i];
+        var is_picked = false;
+        
+        for (var j = 0; j < array_length(draft.picked_players); j++) {
+            if (draft.picked_players[j].name == player.name) {
+                is_picked = true;
+                break;
+            }
+        }
+        
+        if (!is_picked) {
+            array_push(available, player);
+        }
+    }
+    
+    return available;
+}
+
+function make_player_pick(draft, player) {
+    var current_team = get_current_team_player_draft(draft);
+    
+    if (current_team == 1) {
+        array_push(draft.team1_picks, player);
+    } else {
+        array_push(draft.team2_picks, player);
+    }
+    
+    array_push(draft.picked_players, player);
+    draft.current_pick++;
+    
+    if (draft.current_pick % 2 == 0) {
+        draft.current_role_index++;
+    }
+    
+    if (draft.current_pick >= 10) {
+        draft.active = false;
+    }
+    
+    return draft.active;
+}
+
+function ai_pick_player(draft) {
+    var available = get_available_players(draft);
+    
+    if (array_length(available) > 0) {
+        var random_index = irandom(array_length(available) - 1);
+        return available[random_index];
+    }
+    
+    return noone;
+}
+
+#endregion
