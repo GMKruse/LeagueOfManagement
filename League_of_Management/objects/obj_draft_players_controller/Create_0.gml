@@ -18,6 +18,6 @@ create_team_display(global.player_team, global.ai_team)
 
 global.player_draft = create_player_draft_state()
 
-
-alarm[0] = 3 * room_speed
+// Show available players immediately
+available_players = get_available_players(global.player_draft)
 
