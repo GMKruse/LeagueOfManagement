@@ -4,9 +4,8 @@
 // Check if it's AI's turn to pick (team 2)
 if (global.player_draft.active && get_current_team_player_draft(global.player_draft) == 2) {
     // Use alarm to add delay before AI picks
-    if (alarm[1] == -1) {
-        alarm[1] = 2 * room_speed; // AI picks after 2 seconds
-    }
+	show_debug_message("Ai to pick")
+	ai_pick_player(global.player_draft)
 }
 
 // Check if draft is complete and player wants to continue

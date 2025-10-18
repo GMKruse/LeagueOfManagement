@@ -133,9 +133,9 @@ function make_player_pick(draft, player) {
     var current_team = get_current_team_player_draft(draft);
     
     if (current_team == 1) {
-        array_push(draft.team1_picks, player);
+        add_player_to_team(global.player_team, player, true)
     } else {
-        array_push(draft.team2_picks, player);
+        add_player_to_team(global.ai_team, player, true)
     }
     
     array_push(draft.picked_players, player);
@@ -157,6 +157,7 @@ function ai_pick_player(draft) {
     
     if (array_length(available) > 0) {
         var random_index = irandom(array_length(available) - 1);
+		make_player_pick(draft, available[random_index])
         return available[random_index];
     }
     
