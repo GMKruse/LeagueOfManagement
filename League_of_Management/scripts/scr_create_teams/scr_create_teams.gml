@@ -35,18 +35,18 @@ function create_team_display(_blue_team, _red_team){
 			if (i < 5) {
 			    var blue_player = _blue_team.players[i];
 			    show_debug_message("Blue Team Player Index: " + string(i));
-			    create_player_display(blue_player, global.playerXPositions[i], global.playerYPositions[i]);
+			    create_player_display(blue_player, global.playerXPositions[i], global.playerYPositions[i], true);
 			} else if (i - 5 < 5) {
 			    var red_player = _red_team.players[i - 5];
 			    show_debug_message("Red Team Player Index: " + string(i - 5));
-			    create_player_display(red_player, global.playerXPositions[i], global.playerYPositions[i]);
+			    create_player_display(red_player, global.playerXPositions[i], global.playerYPositions[i], true);
 			}
 		}
 	}
 }
 
 
-function create_player_display(_player, _x, _y){
+function create_player_display(_player, _x, _y, _is_team_display = false){
 	show_debug_message("Player Team: " + string(_player.team))
 
 	var display = instance_create_depth(500, 500, -1, obj_player_display)
@@ -59,6 +59,7 @@ function create_player_display(_player, _x, _y){
 		self.player = _player
 		self.x = _x
 		self.y = _y
+		self.is_team_display = _is_team_display
 	}
 	show_debug_message("Created: " + (_player.name) + " at " + string(_x) + ", " + string(_y))
 }

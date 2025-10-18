@@ -61,7 +61,7 @@ draw_set_valign(fa_middle);
 // Align the text to the left so it starts immediately after the offset
 draw_set_halign(fa_left); 
 
-if (player != undefined && player.team != undefined && player.team != -4){
+if (player != undefined && player.team != undefined && player.team != -4 && is_team_display){
 	if(player.team.side != -4){
 		var _name_x = -100;
 		var _champion_x = -100;

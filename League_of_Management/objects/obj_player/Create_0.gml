@@ -1,3 +1,5 @@
+persistent = true; // Keep player instances across rooms
+
 name = noone
 team = noone
 role = noone

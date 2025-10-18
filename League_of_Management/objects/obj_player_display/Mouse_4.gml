@@ -30,29 +30,15 @@ if (instance_exists(obj_draft_players_controller)) {
         }
         
         if (is_available) {
-            // Make the pick
+            // Make the pick using the centralized function
             show_debug_message("Player picked: " + player.name + " for role " + get_current_role_player_draft(draft));
             
-            // Add player to the team with display update
-            add_player_to_team(global.player_team, player, true);
+            make_player_pick(draft, player);
             
-            // Update draft state
-            array_push(draft.picked_players, player);
-            draft.current_pick++;
-            
-            if (draft.current_pick % 2 == 0) {
-                draft.current_role_index++;
-            }
-            
-            if (draft.current_pick >= 10) {
-                draft.active = false;
-                show_debug_message("Draft complete!");
-            }
-            
-            // Destroy all current player displays in the draft area
+            // Destroy all current player displays in the draft area (but not team displays)
             with (obj_player_display) {
-                // Only destroy displays that aren't part of team displays
-                if (y > 150) { // Draft area displays are below y=150
+                // Only destroy draft displays, not permanent team displays
+                if (!is_team_display) {
                     instance_destroy();
                 }
             }

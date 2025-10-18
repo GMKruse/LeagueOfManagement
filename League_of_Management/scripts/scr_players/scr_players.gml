@@ -92,6 +92,10 @@ function get_current_team_player_draft(draft) {
 
 function get_current_role_player_draft(draft) {
     var roles = ["Top", "Jungle", "Mid", "ADC", "Support"];
+    // Safety check to prevent out of bounds access
+    if (draft.current_role_index >= array_length(roles)) {
+        return "Complete"; // Draft is complete
+    }
     return roles[draft.current_role_index];
 }
 
