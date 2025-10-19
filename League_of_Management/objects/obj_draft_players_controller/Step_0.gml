@@ -9,7 +9,7 @@ if (global.player_draft.active && get_current_team_player_draft(global.player_dr
 
 // Check if draft is complete and player wants to continue
 if (!global.player_draft.active && keyboard_check_pressed(vk_space)) {
-    show_debug_message("Moving to next room...");
-    // Transition to game simulation or next screen
-    room_goto(room_game_simulation);
+    show_debug_message("Moving to champion draft...");
+    // Transition to champion draft
+    room_goto(room_draft_champions);
 }
