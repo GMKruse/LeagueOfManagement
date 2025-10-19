@@ -7,7 +7,7 @@ if (is_ban_phase_active(draft)) {
     // Check if it's AI's turn to ban
     if (get_current_team_banning(draft) == 2 && !ai_action_pending) {
         ai_action_pending = true;
-        alarm[0] = 2 * room_speed; // AI bans after 2 seconds
+        alarm[0] = 1 * room_speed; // AI bans after 2 seconds
     }
 } else if (is_pick_phase_active(draft)) {
     available_champions = get_available_champions_for_pick(draft);
@@ -15,7 +15,7 @@ if (is_ban_phase_active(draft)) {
     // Check if it's AI's turn to pick
     if (get_current_team_picking(draft) == 2 && !ai_action_pending) {
         ai_action_pending = true;
-        alarm[1] = 2 * room_speed; // AI picks after 2 seconds
+        alarm[1] = 1 * room_speed; // AI picks after 2 seconds
     }
 }
 

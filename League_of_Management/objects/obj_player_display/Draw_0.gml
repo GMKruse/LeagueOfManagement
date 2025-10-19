@@ -34,7 +34,7 @@ if (_is_hovering && instance_exists(obj_draft_players_controller)) {
     if (draft.active && get_current_team_player_draft(draft) == 1) {
         // Draw yellow highlight around the sprite
         draw_set_alpha(0.5);
-        draw_set_colour(c_yellow);
+        draw_set_colour(c_blue);
         draw_rectangle(x - sprite_get_width(sprite_index) / 2 - 5, 
                       y - sprite_get_height(sprite_index) / 2 - 5,
                       x + sprite_get_width(sprite_index) / 2 + 5,
@@ -141,13 +141,14 @@ if (_mouse_x >= _left && _mouse_x <= _right && _mouse_y >= _top && _mouse_y <= _
     draw_set_valign(fa_top);
     draw_set_halign(fa_left);
     
-    var _text_x = _tooltip_x + 10;
-    var _text_y = _tooltip_y + 10;
+    var _text_x = _tooltip_x + 2.5;
+    var _text_y = _tooltip_y + 2.5;
     var _line_height = 18;
     
-    draw_text(_text_x, _text_y, "Mechanics: " + string(player.mechanics));
-    draw_text(_text_x, _text_y + _line_height, "Teamwork: " + string(player.teamwork));
-    draw_text(_text_x, _text_y + _line_height * 2, "Knowledge: " + string(player.knowledge));
+	draw_text(_text_x, _text_y, string(player.name))
+    draw_text(_text_x, _text_y + _line_height, "Mechanics: " + string(player.mechanics));
+    draw_text(_text_x, _text_y + _line_height * 2, "Teamwork: " + string(player.teamwork));
+    draw_text(_text_x, _text_y + _line_height * 3, "Knowledge: " + string(player.knowledge));
 }
 
 // --- 5. Reset Drawing Settings ---

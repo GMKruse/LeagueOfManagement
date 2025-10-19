@@ -3,7 +3,7 @@ function init_champion_pool() {
     global.champion_pool = { 
 	    top: [
 	        // Shen - Tank/Teamwork focused, global ultimate
-	        create_champion("Shen", "Top", 0.9, 1.3, 1.1, 0.9, 1.1, 1.0),
+	        create_champion("Shen", "Top", 0.9, 1.3, 1.1, 0.9, 1.1, 1.0, spr_shen),
 	        // Aatrox - Mechanics heavy, early game bully
 	        create_champion("Aatrox", "Top", 1.3, 0.9, 0.9, 1.2, 1.0, 0.9, spr_aatrox),
 	        // Rumble - Knowledge/positioning, teamfight monster
@@ -13,83 +13,83 @@ function init_champion_pool() {
 			// Simple mechanics, teamwork engage
 	        create_champion("Malphite", "Top", 0.8, 1.2, 1.0, 1.0, 1.1, 1.0, spr_malphite), 
 			 // Weak early, insane late scaling
-	        create_champion("Kayle", "Top", 1.0, 0.9, 1.2, 0.7, 0.9, 1.4),
+	        create_champion("Kayle", "Top", 1.0, 0.9, 1.2, 0.7, 0.9, 1.4, spr_kayle),
 			// Precision duelist with strong mid-game
-			create_champion("Camille", "Top", 1.4, 1.0, 1.1, 1.1, 1.2, 1.1),
+			create_champion("Camille", "Top", 1.4, 1.0, 1.1, 1.1, 1.2, 1.1, spr_camille),
 			// Late scaling tank with team utility
-			create_champion("Ornn", "Top", 0.9, 1.4, 1.0, 0.8, 1.1, 1.2)
+			create_champion("Ornn", "Top", 0.9, 1.4, 1.0, 0.8, 1.1, 1.2, spr_ornn)
 	    ],
 	    jungle: [
 	        // Lee Sin - High mechanics, early game aggro
-	        create_champion("Lee Sin", "Jungle", 1.4, 0.8, 1.0, 1.3, 1.0, 0.8),
+	        create_champion("Lee Sin", "Jungle", 1.4, 0.8, 1.0, 1.3, 1.0, 0.8, spr_lee_sin),
 	        // Shyvana - Farming jungler, scales into late
-	        create_champion("Shyvana", "Jungle", 0.9, 0.9, 1.0, 0.8, 1.0, 1.3),
+	        create_champion("Shyvana", "Jungle", 0.9, 0.9, 1.0, 0.8, 1.0, 1.3, spr_shyvana),
 	        // Kindred - Mechanics + knowledge, scaling marksman
-	        create_champion("Kindred", "Jungle", 1.2, 0.9, 1.2, 0.9, 1.1, 1.2),
+	        create_champion("Kindred", "Jungle", 1.2, 0.9, 1.2, 0.9, 1.1, 1.2, spr_kindred),
 	        // Early gank pressure, mechanics heavy
-	        create_champion("Elise", "Jungle", 1.3, 0.9, 1.1, 1.3, 1.1, 0.8),
+	        create_champion("Elise", "Jungle", 1.3, 0.9, 1.1, 1.3, 1.1, 0.8, spr_elise),
 			 // Teamfight tank, CC synergy
-	        create_champion("Sejuani", "Jungle", 0.9, 1.3, 1.0, 0.9, 1.1, 1.1),
+	        create_champion("Sejuani", "Jungle", 0.9, 1.3, 1.0, 0.9, 1.1, 1.1, spr_sejuani),
 			// Isolated duelist, mechanics focused
-	        create_champion("Kha'Zix", "Jungle", 1.4, 0.8, 1.1, 1.2, 1.2, 1.0),
+	        create_champion("Kha'Zix", "Jungle", 1.4, 0.8, 1.1, 1.2, 1.2, 1.0, spr_khazix),
 			// Skillshot-based, mechanics high
-			create_champion("Nidalee", "Jungle", 1.5, 0.8, 1.1, 1.2, 1.1, 1.0),
+			create_champion("Nidalee", "Jungle", 1.5, 0.8, 1.1, 1.2, 1.1, 1.0, spr_nidalee),
 			// Teamfight CC and sustain tank
-			create_champion("Zac", "Jungle", 0.9, 1.4, 1.0, 0.9, 1.2, 1.2)
+			create_champion("Zac", "Jungle", 0.9, 1.4, 1.0, 0.9, 1.2, 1.2, spr_zac)
 	    ],
 	    mid: [
 	        // Yasuo - Extremely mechanics heavy, high risk/reward
-	        create_champion("Yasuo", "Mid", 1.5, 0.8, 0.8, 1.0, 1.1, 1.2),
+	        create_champion("Yasuo", "Mid", 1.5, 0.8, 0.8, 1.0, 1.1, 1.2, spr_yasuo),
 	        // Galio - Teamwork focused, roaming, engage
-	        create_champion("Galio", "Mid", 0.8, 1.4, 1.1, 0.9, 1.2, 1.0),
+	        create_champion("Galio", "Mid", 0.8, 1.4, 1.1, 0.9, 1.2, 1.0, spr_galio),
 	        // Anivia - Knowledge/positioning, control mage
-	        create_champion("Anivia", "Mid", 0.9, 1.0, 1.4, 0.8, 1.0, 1.3),
+	        create_champion("Anivia", "Mid", 0.9, 1.0, 1.4, 0.8, 1.0, 1.3, spr_anivia),
 	        // Assassin, mechanics intensive
-	        create_champion("Zed", "Mid", 1.5, 0.8, 1.0, 1.2, 1.2, 0.9),
+	        create_champion("Zed", "Mid", 1.5, 0.8, 1.0, 1.2, 1.2, 0.9, spr_zed),
 			// Knowledge/positioning mage
-	        create_champion("Orianna", "Mid", 1.0, 1.2, 1.3, 0.9, 1.2, 1.2),
+	        create_champion("Orianna", "Mid", 1.0, 1.2, 1.3, 0.9, 1.2, 1.2, spr_orianna),
 			// Adaptive scaling, mechanics heavy
-	        create_champion("Sylas", "Mid", 1.3, 1.0, 1.2, 1.0, 1.2, 1.1),
+	        create_champion("Sylas", "Mid", 1.3, 1.0, 1.2, 1.0, 1.2, 1.1, spr_sylas),
 			// Infinite scaling mage
-			create_champion("Veigar", "Mid", 0.9, 1.0, 1.3, 0.8, 1.0, 1.4),
+			create_champion("Veigar", "Mid", 0.9, 1.0, 1.3, 0.8, 1.0, 1.4, spr_veigar),
 			// Burst assassin, high mechanics
 			create_champion("Akali", "Mid", 1.5, 0.8, 1.1, 1.1, 1.2, 1.2, spr_akali)
 	    ],
 	    adc: [
 	        // Vayne - Mechanics heavy, late game hyper carry
-	        create_champion("Vayne", "ADC", 1.4, 0.8, 0.9, 0.7, 0.9, 1.4),
+	        create_champion("Vayne", "ADC", 1.4, 0.8, 0.9, 0.7, 0.9, 1.4, spr_vayne),
 	        // Ashe - Utility/teamwork, consistent throughout
-	        create_champion("Ashe", "ADC", 0.9, 1.2, 1.1, 1.0, 1.1, 1.1),
+	        create_champion("Ashe", "ADC", 0.9, 1.2, 1.1, 1.0, 1.1, 1.1, spr_ashe),
 	        // Jhin - Mechanics + knowledge, positioning crucial
-	        create_champion("Jhin", "ADC", 1.3, 0.9, 1.2, 1.1, 1.2, 1.0),
+	        create_champion("Jhin", "ADC", 1.3, 0.9, 1.2, 1.1, 1.2, 1.0, spr_jhin),
 	        // Snowball early, mechanics heavy
-	        create_champion("Draven", "ADC", 1.5, 0.8, 1.0, 1.3, 1.1, 0.9),
+	        create_champion("Draven", "ADC", 1.5, 0.8, 1.0, 1.3, 1.1, 0.9, spr_draven),
 			// Flexible scaling, hybrid damage
-	        create_champion("Kai'Sa", "ADC", 1.3, 1.0, 1.1, 0.9, 1.1, 1.3),
+	        create_champion("Kai'Sa", "ADC", 1.3, 1.0, 1.1, 0.9, 1.1, 1.3, spr_kaisa),
 			// Lane bully, knowledge positioning
-	        create_champion("Caitlyn", "ADC", 1.1, 1.0, 1.2, 1.2, 1.1, 1.0),
+	        create_champion("Caitlyn", "ADC", 1.1, 1.0, 1.2, 1.2, 1.1, 1.0, spr_caitlyn),
 			// Safe poke ADC, mechanics + knowledge
-			create_champion("Ezreal", "ADC", 1.4, 0.9, 1.2, 1.0, 1.2, 1.2),
+			create_champion("Ezreal", "ADC", 1.4, 0.9, 1.2, 1.0, 1.2, 1.2, spr_ezreal),
 			// Combo-based, high mechanical ceiling
-			create_champion("Samira", "ADC", 1.5, 0.9, 1.0, 1.2, 1.2, 1.1)
+			create_champion("Samira", "ADC", 1.5, 0.9, 1.0, 1.2, 1.2, 1.1, spr_samira)
 	    ],
 	    support: [
 	        // Janna - Teamwork/peel, protective enchanter
-	        create_champion("Janna", "Support", 0.8, 1.4, 1.0, 0.9, 1.0, 1.1),
+	        create_champion("Janna", "Support", 0.8, 1.4, 1.0, 0.9, 1.0, 1.1, spr_janna),
 	        // Bard - Knowledge heavy, roaming support
-	        create_champion("Bard", "Support", 1.0, 1.1, 1.4, 1.1, 1.2, 1.0),
+	        create_champion("Bard", "Support", 1.0, 1.1, 1.4, 1.1, 1.2, 1.0, spr_bard),
 	        // Thresh - Mechanics + teamwork, playmaking
-	        create_champion("Thresh", "Support", 1.3, 1.2, 0.9, 1.1, 1.1, 0.9),
+	        create_champion("Thresh", "Support", 1.3, 1.2, 0.9, 1.1, 1.1, 0.9, spr_thresh),
 	        // Engage tank support
-	        create_champion("Leona", "Support", 1.0, 1.3, 1.0, 1.2, 1.2, 1.0),
+	        create_champion("Leona", "Support", 1.0, 1.3, 1.0, 1.2, 1.2, 1.0, spr_leona),
 			// Knowledge + teamwork enchanter
-	        create_champion("Nami", "Support", 0.9, 1.3, 1.2, 1.0, 1.1, 1.2),
+	        create_champion("Nami", "Support", 0.9, 1.3, 1.2, 1.0, 1.1, 1.2, spr_nami),
 			// Assassin support, mechanics reliant
-	        create_champion("Pyke", "Support", 1.4, 1.0, 1.0, 1.2, 1.1, 1.0),
+	        create_champion("Pyke", "Support", 1.4, 1.0, 1.0, 1.2, 1.1, 1.0, spr_pyke),
 			// Buff/utility enchanter
-			create_champion("Lulu", "Support", 0.9, 1.4, 1.2, 1.0, 1.1, 1.2),
+			create_champion("Lulu", "Support", 0.9, 1.4, 1.2, 1.0, 1.1, 1.2, spr_lulu),
 			// Engage/disengage hybrid
-			create_champion("Rakan", "Support", 1.2, 1.3, 1.1, 1.1, 1.2, 1.1)
+			create_champion("Rakan", "Support", 1.2, 1.3, 1.1, 1.1, 1.2, 1.1, spr_rakan)
 	    ]
 	};
 }

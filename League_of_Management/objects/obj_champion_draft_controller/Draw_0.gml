@@ -35,13 +35,13 @@ if (is_ban_phase_active(draft)) {
     draw_set_halign(fa_left);
     draw_text(100, _header_y, "Team 1 Bans:");
     for (var i = 0; i < array_length(draft.team1_bans); i++) {
-        draw_text(120, _header_y + 130 + (i * 20), "- " + draft.team1_bans[i].name);
+        draw_text(120, _header_y + 50 + (i * 20), "- " + draft.team1_bans[i].name);
     }
     
     draw_set_halign(fa_right);
     draw_text(room_width - 100, _header_y, "Team 2 Bans:");
     for (var i = 0; i < array_length(draft.team2_bans); i++) {
-        draw_text(room_width - 120, _header_y + 130 + (i * 20), "- " + draft.team2_bans[i].name);
+        draw_text(room_width - 120, _header_y + 50 + (i * 20), "- " + draft.team2_bans[i].name);
     }
     
 } else if (is_pick_phase_active(draft)) {
