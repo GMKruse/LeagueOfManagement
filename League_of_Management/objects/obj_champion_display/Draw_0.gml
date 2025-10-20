@@ -1,22 +1,22 @@
-if (champion != noone) {
-    // Draw champion sprite or placeholder
-    draw_self();
+//if (champion != noone) {
+//    // Draw champion sprite or placeholder
+//    draw_self();
     
-    // Draw champion name
-    draw_set_colour(c_white);
-    draw_set_halign(fa_center);
-    draw_set_valign(fa_bottom);
-	var text = champion.name;
-	var text_x = x + sprite_width / 2 - string_width(text) / 2;
-	var text_y = y + sprite_height + 5
+//    // Draw champion name
+//    draw_set_colour(c_white);
+//    draw_set_halign(fa_center);
+//    draw_set_valign(fa_bottom);
+//	var text = champion.name;
+//	var text_x = x + sprite_width / 2 - string_width(text) / 2;
+//	var text_y = y + sprite_height + 5
 
-	draw_text(text_x, text_y, text);
+//	draw_text(text_x, text_y, text);
 
     
-    // Reset draw settings
-    draw_set_halign(fa_left);
-    draw_set_valign(fa_top);
-}
+//    // Reset draw settings
+//    draw_set_halign(fa_left);
+//    draw_set_valign(fa_top);
+//}
 
 #region Hovering
 var _is_hovering = false;

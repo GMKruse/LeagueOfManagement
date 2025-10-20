@@ -1,3 +1,6 @@
+
+instance_create_depth(room_width*0.5, room_height*0.45, 0, obj_background)
+
 global.player_id_map = {};
 
 init_player_pool()
