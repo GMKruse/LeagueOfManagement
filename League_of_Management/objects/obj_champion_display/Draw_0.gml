@@ -1,49 +1,38 @@
-//if (champion != noone) {
-//    // Draw champion sprite or placeholder
-//    draw_self();
-    
-//    // Draw champion name
-//    draw_set_colour(c_white);
-//    draw_set_halign(fa_center);
-//    draw_set_valign(fa_bottom);
-//	var text = champion.name;
-//	var text_x = x + sprite_width / 2 - string_width(text) / 2;
-//	var text_y = y + sprite_height + 5
-
-//	draw_text(text_x, text_y, text);
-
-    
-//    // Reset draw settings
-//    draw_set_halign(fa_left);
-//    draw_set_valign(fa_top);
-//}
-
-#region Hovering
+// --- Hover detection and background highlight ---
 var _is_hovering = false;
+// Use safe sprite dimensions (handle missing sprite)
+var _sprite_w = (sprite_index != -1) ? sprite_get_width(sprite_index) : 0;
+var _sprite_h = (sprite_index != -1) ? sprite_get_height(sprite_index) : 0;
 if (instance_exists(obj_champion_draft_controller)) {
     var _mouse_x = mouse_x;
     var _mouse_y = mouse_y;
-    var _left = x - sprite_get_width(sprite_index) / 2;
-    var _right = x + sprite_get_width(sprite_index) / 2;
-    var _top = y - sprite_get_height(sprite_index) / 2;
-    var _bottom = y + sprite_get_height(sprite_index) / 2;
+    var _left = x - _sprite_w / 2;
+    var _right = x + _sprite_w / 2;
+    var _top = y - _sprite_h / 2;
+    var _bottom = y + _sprite_h / 2;
     
     if (_mouse_x >= _left && _mouse_x <= _right && _mouse_y >= _top && _mouse_y <= _bottom) {
         _is_hovering = true;
     }
 }
 
-// Draw highlight if hovering and it's player's turn
+// Draw highlight behind the sprite when hovering (so it acts like a border)
 if (_is_hovering && instance_exists(obj_champion_draft_controller)) {
     draw_set_alpha(0.5);
     draw_set_colour(c_blue);
-    draw_rectangle(x - sprite_get_width(sprite_index) / 2 - 5, 
-                    y - sprite_get_height(sprite_index) / 2 - 5,
-                    x + sprite_get_width(sprite_index) / 2 + 5,
-                    y + sprite_get_height(sprite_index) / 2 + 5,
-                    false);
-    draw_set_alpha(0.5);
+    draw_rectangle(x - _sprite_w / 2 - 5, 
+                   y - _sprite_h / 2 - 5,
+                   x + _sprite_w / 2 + 5,
+                   y + _sprite_h / 2 + 5,
+                   false);
+    // restore colour/alpha partially; full reset at end
+    draw_set_alpha(1);
     draw_set_colour(c_white);
+}
+
+// Now draw the champion sprite (on top of the highlight)
+if (sprite_index != -1) {
+    draw_self();
 }
 
 
@@ -102,3 +91,9 @@ if (_mouse_x >= _left && _mouse_x <= _right && _mouse_y >= _top && _mouse_y <= _
 
 
 #endregion
+
+// Restore common draw state to avoid affecting other draw calls
+draw_set_alpha(1);
+draw_set_colour(c_white);
+draw_set_halign(fa_left);
+draw_set_valign(fa_top);

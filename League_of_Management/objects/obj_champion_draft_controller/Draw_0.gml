@@ -1,5 +1,17 @@
 var draft = global.champion_draft;
 
+draw_set_alpha(0.5);
+draw_set_colour(c_black);
+draw_rectangle(400, 
+                100,
+                1000,
+                room_height,
+                false);
+// restore colour/alpha partially; full reset at end
+draw_set_alpha(1);
+draw_set_colour(c_white);
+
+
 // Draw header with phase information
 draw_set_font(-1);
 draw_set_colour(c_white);
